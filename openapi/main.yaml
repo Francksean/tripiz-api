@@ -1,0 +1,195 @@
+openapi: "3.0.3"
+info:
+  title: "Tripiz API"
+  description: "Backend application for Tripiz app"
+  version: "1.0.0"
+servers:
+  - url: "http://localhost:8080"
+    description: "Local server"
+
+tags:
+  - name: "User"
+    description: "Operations on users"
+
+paths:
+  /auth/signupAsClient:
+    post:
+      tags:
+        - "User"
+      summary: "Create a client account"
+      description: "Create an endpoint for signing up as a client"
+      operationId: signupAsClient
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignupRequestDTO'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignupResponseDTO'
+        '400':
+          description: Bad Request
+  /auth/signupAsDriver:
+    post:
+      tags:
+        - "User"
+      summary: "Create a driver account"
+      description: "Create an endpoint for signing up as a driver"
+      operationId: signupAsDriver
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignupRequestDTO'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignupResponseDTO'
+        '400':
+          description: Bad Request
+  /user/{id}:
+    patch:
+      tags:
+        - "User"
+      description: "Create an endpoint for updating a user"
+      operationId: updateUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: "The id of the user to update"
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequestDTO'
+      responses:
+        '200':
+          description: "User updated successfully"
+        '404':
+          description: Not found
+  /users/delete/{id}:
+    delete:
+      tags:
+        - "User"
+      description: "Delete a user"
+      operationId: deleteUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: "User deleted successfully"
+        '404':
+          description: "Not Found"
+  /users:
+    get:
+      tags:
+        - "User"
+      description: "Get all users"
+      operationId: getAllUsers
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserDTO'
+        '404':
+          description: Not found
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    SignupRequestDTO:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        password:
+          type: string
+          example: "password1234"
+        email:
+          type: string
+          format: email
+          example: "user@entreprise.com"
+    SignupResponseDTO:
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+        role:
+          type: string
+    UpdateUserRequestDTO:
+      type: object
+      properties:
+        email:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        phone:
+          type: integer
+    UserDTO:
+      type: object
+      properties:
+        email:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        phone:
+          type: integer
+        status:
+          type: string
+        role:
+          type: string
+
+
+
+
