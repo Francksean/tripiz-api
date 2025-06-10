@@ -19,10 +19,17 @@ public class Bus {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "bus_id")
     private UUID busId;
+
     @Column(name = "bus_number")
     private Integer busNumber;
-    private String immatriculation;
+
+    @Column(name = "matriculation")
+    private String matriculation;
+
+    @Column(name = "capacity")
     private Integer capacity;
+
+    @Column(name = "status")
     private String status;
 }
 

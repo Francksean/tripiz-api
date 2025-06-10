@@ -17,10 +17,19 @@ import java.util.UUID;
 public class Route {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID route_id;
-    private String route_name;
+    @Column(name = "route_id")
+    private UUID routeId;
+
+    @Column(name = "route_name")
+    private String routeName;
+
+    @Column(name = "description")
     private String description;
-    private Float ticket_price;
+
+    @Column(name = "ticket_price")
+    private Float ticketPrice;
+
+    @Column(name = "status")
     private String status;
 }
 
