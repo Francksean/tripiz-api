@@ -189,6 +189,18 @@ components:
           type: string
         role:
           type: string
+    RechargeRequestDTO :
+      type : object
+      properties:
+        walletId :
+          type: string
+          format: UUID
+        amount :
+          type: string
+          format: double
+        phone :
+          type: string
+
 
 
 

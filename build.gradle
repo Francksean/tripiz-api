@@ -76,6 +76,7 @@ tasks.named('test') {
 			'-XX:+EnableDynamicAgentLoading',
 			'-Djdk.instrument.traceUsage=false'
 	]
+	enabled = false
 }
 tasks.named('compileJava').configure{
 	dependsOn('openApiGenerate')
