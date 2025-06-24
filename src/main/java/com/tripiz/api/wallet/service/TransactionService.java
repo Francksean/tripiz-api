@@ -4,7 +4,6 @@ import com.tripiz.api.wallet.domain.*;
 import com.tripiz.api.wallet.enums.TransactionStatus;
 import com.tripiz.api.wallet.exceptions.InsufficientFundsException;
 import com.tripiz.api.wallet.repositories.BalanceHistoryRepository;
-import com.tripiz.api.wallet.repositories.PaymentMethodRepository;
 import com.tripiz.api.wallet.repositories.TransactionRepository;
 import com.tripiz.api.wallet.repositories.WalletRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +18,6 @@ public class TransactionService {
     WalletRepository walletRepository;
     @Autowired
     TransactionRepository transactionRepository;
-    @Autowired
-    PaymentMethodRepository paymentMethodRepository;
     @Autowired
     BalanceHistoryRepository balanceHistoryRepository;
 
@@ -38,11 +35,6 @@ public class TransactionService {
         recharge.setReference(UUID.randomUUID().toString());
         recharge.setStatus(TransactionStatus.PENDING);
 
-        if(request.getPaymentMethodId() != null) {
-            PaymentMethod pm = paymentMethodRepository.findById(request.getPaymentMethodId())
-                    .orElseThrow();
-            recharge.setPaymentMethod(pm);
-        }
 
         return transactionRepository.save(recharge);
     }
@@ -55,7 +47,7 @@ public class TransactionService {
         if(wallet.getBalance().compareTo(request.getAmount()) < 0) {
             throw new InsufficientFundsException("Solde insuffisant");
         }
-        checkTransactionLimits(wallet, request.getAmount(), LimitType.PAYMENT);
+//        checkTransactionLimits(wallet, request.getAmount(), LimitType.PAYMENT);
 
         Payment payment = new Payment();
         payment.setAmount(request.getAmount());
@@ -63,13 +55,12 @@ public class TransactionService {
         payment.setTimestamp(LocalDateTime.now());
         payment.setReference(UUID.randomUUID().toString());
         payment.setStatus(TransactionStatus.PENDING);
-        payment.setOrderReference(request.getOrderReference());
 
-        if(request.getBeneficiaryId() != null) {
-            Beneficiary beneficiary = beneficiaryRepository.findById(request.getBeneficiaryId())
-                    .orElseThrow();
-            payment.setBeneficiary(beneficiary);
-        }
+//        if(request.getBeneficiaryId() != null) {
+//            Beneficiary beneficiary = beneficiaryRepository.findById(request.getBeneficiaryId())
+//                    .orElseThrow();
+//            payment.setBeneficiary(beneficiary);
+//        }
 
         return transactionRepository.save(payment);
     }

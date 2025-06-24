@@ -29,6 +29,5 @@ public abstract class Transaction {
     @Enumerated(EnumType.STRING)
     private TransactionStatus status;
 
-    // Getters, setters et constructeurs
 }
 

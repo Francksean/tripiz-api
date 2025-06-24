@@ -16,12 +16,6 @@ public class Payment extends Transaction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private UUID payment_id;
+    private UUID paymentId;
 
-    private String merchantCode;
-    private String orderReference;
-
-    @ManyToOne
-    @JoinColumn(name = "beneficiary_id")
-    private Beneficiary beneficiary;
 }

@@ -200,6 +200,20 @@ components:
           format: double
         phone :
           type: string
+    PaymentRequestDTO :
+      type : object
+      properties:
+        walletId :
+          type: string
+          format: UUID
+        amount :
+          type: string
+          format: double
+        phone :
+          type: string
+        tripId :
+          type : string
+          format : UUID
 
 
 

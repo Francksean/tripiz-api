@@ -14,9 +14,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Table(name = "recharge")
 public class Recharge extends Transaction {
-    @ManyToOne
-    @JoinColumn(name = "payment_method_id")
-    private PaymentMethod paymentMethod;
-
     private String paymentGatewayReference; // ID de la transaction chez le processeur de paiement
+
 }
