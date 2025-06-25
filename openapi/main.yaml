@@ -496,6 +496,8 @@ components:
     UserDTO:
       type: object
       properties:
+        user_id:
+          type: string
         email:
           type: string
         first_name:
@@ -568,9 +570,11 @@ components:
         status:
           type: string
         latitude:
-          type: double
+          type: number
+          format: double
         longitude:
-          type: double
+          type: number
+          format: double
     MapBoundsDTO:
       type: object
       required:
