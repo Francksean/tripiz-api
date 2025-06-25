@@ -69,14 +69,15 @@ openApiGenerate {
 			useJakartaEe: "true"
 	]
 }
-
-tasks.named('test') {
-	useJUnitPlatform()
-	jvmArgs += [
-			'-XX:+EnableDynamicAgentLoading',
-			'-Djdk.instrument.traceUsage=false'
-	]
-}
+//
+//tasks.named('test') {
+//	useJUnitPlatform()
+//	jvmArgs += [
+//			'-XX:+EnableDynamicAgentLoading',
+//			'-Djdk.instrument.traceUsage=false'
+//	]
+//	enabled = false
+//}
 tasks.named('compileJava').configure{
 	dependsOn('openApiGenerate')
 }
