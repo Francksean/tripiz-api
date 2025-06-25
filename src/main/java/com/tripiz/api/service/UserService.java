@@ -1,9 +1,9 @@
-package com.tripiz.api.common.service;
+package com.tripiz.api.service;
 
 
-import com.tripiz.api.common.repository.UserRepository;
-import com.tripiz.api.common.service.mapper.UserMapper;
-import com.tripiz.api.common.domain.User;
+import com.tripiz.api.repository.UserRepository;
+import com.tripiz.api.service.mapper.UserMapper;
+import com.tripiz.api.domain.User;
 import com.tripiz.api.model.SignupRequestDTO;
 import com.tripiz.api.model.SignupResponseDTO;
 import com.tripiz.api.model.UpdateUserRequestDTO;

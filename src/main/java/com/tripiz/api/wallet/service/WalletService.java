@@ -1,7 +1,7 @@
 package com.tripiz.api.wallet.service;
 
-import com.tripiz.api.common.domain.User;
-import com.tripiz.api.common.repository.UserRepository;
+import com.tripiz.api.domain.User;
+import com.tripiz.api.repository.UserRepository;
 import com.tripiz.api.wallet.domain.Wallet;
 import com.tripiz.api.wallet.repositories.WalletRepository;
 import jakarta.persistence.EntityNotFoundException;

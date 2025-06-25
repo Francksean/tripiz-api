@@ -36,6 +36,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	implementation 'org.openapitools:jackson-databind-nullable:0.2.6'
+	implementation 'com.google.code.gson:gson:2.13.1'
 
 	annotationProcessor 'org.projectlombok:lombok:1.18.36'
 	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'

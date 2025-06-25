@@ -1,9 +1,10 @@
 package com.tripiz.api.service;
 
 import com.tripiz.api.domain.Bus;
-import com.tripiz.api.domain.Bus;
-import com.tripiz.api.domain.User;
-import com.tripiz.api.model.*;
+import com.tripiz.api.model.BusDTO;
+import com.tripiz.api.model.CreateBusRequestDTO;
+import com.tripiz.api.model.CreateBusResponseDTO;
+import com.tripiz.api.model.UpdateBusRequestDTO;
 import com.tripiz.api.repository.BusRepository;
 import com.tripiz.api.service.mapper.BusMapper;
 import lombok.RequiredArgsConstructor;

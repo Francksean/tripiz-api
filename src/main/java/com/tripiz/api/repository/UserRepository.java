@@ -1,6 +1,6 @@
-package com.tripiz.api.common.repository;
+package com.tripiz.api.repository;
 
-import com.tripiz.api.common.domain.User;
+import com.tripiz.api.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

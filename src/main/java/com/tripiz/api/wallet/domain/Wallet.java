@@ -1,6 +1,6 @@
 package com.tripiz.api.wallet.domain;
 
-import com.tripiz.api.common.domain.User;
+import com.tripiz.api.domain.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

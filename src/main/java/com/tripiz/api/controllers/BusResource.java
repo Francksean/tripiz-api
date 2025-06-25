@@ -1,7 +1,10 @@
 package com.tripiz.api.controllers;
 
 
-import com.tripiz.api.model.*;
+import com.tripiz.api.model.BusDTO;
+import com.tripiz.api.model.CreateBusRequestDTO;
+import com.tripiz.api.model.CreateBusResponseDTO;
+import com.tripiz.api.model.UpdateBusRequestDTO;
 import com.tripiz.api.service.BusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

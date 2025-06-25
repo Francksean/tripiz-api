@@ -407,7 +407,7 @@ paths:
       tags:
         - "Station"
       description: "Count the number of station in maintenance"
-      operationId: countInServiceStation
+      operationId: countInMaintenanceStation
       responses:
         '200':
           description: "Success"

@@ -1,4 +1,4 @@
-package com.tripiz.api.common.domain;
+package com.tripiz.api.domain;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

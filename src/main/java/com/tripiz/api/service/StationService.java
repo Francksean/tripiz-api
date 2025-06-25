@@ -1,8 +1,6 @@
 package com.tripiz.api.service;
 
-import com.tripiz.api.domain.Bus;
 import com.tripiz.api.domain.Station;
-import com.tripiz.api.domain.User;
 import com.tripiz.api.model.CreateStationRequestDTO;
 import com.tripiz.api.model.StationDTO;
 import com.tripiz.api.repository.StationRepository;
