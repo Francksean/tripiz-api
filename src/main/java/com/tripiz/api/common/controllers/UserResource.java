@@ -1,11 +1,11 @@
-package com.tripiz.api.controllers;
+package com.tripiz.api.common.controllers;
 
 
 import com.tripiz.api.model.SignupRequestDTO;
 import com.tripiz.api.model.SignupResponseDTO;
 import com.tripiz.api.model.UpdateUserRequestDTO;
 import com.tripiz.api.model.UserDTO;
-import com.tripiz.api.service.UserService;
+import com.tripiz.api.common.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
