@@ -512,6 +512,33 @@ components:
           type: string
         created_at:
           type: string
+    RechargeRequestDTO:
+      type: object
+      properties:
+        walletId:
+          type: string
+          format: UUID
+        amount:
+          type: string
+          format: double
+        phone:
+          type: string
+        channel:
+          type: string
+    PaymentRequestDTO:
+      type: object
+      properties:
+        walletId:
+          type: string
+          format: UUID
+        amount:
+          type: string
+          format: double
+        phone:
+          type: string
+        tripId:
+          type: string
+          format: UUID
     CreateBusRequestDTO:
       type: object
       properties:
