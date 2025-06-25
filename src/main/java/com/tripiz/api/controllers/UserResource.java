@@ -50,4 +50,29 @@ public class UserResource {
         return ResponseEntity.ok(user);
     }
 
+    @GetMapping("/admin/countOnline")
+    public ResponseEntity<Integer> countOnlineUsers() {
+        int count = accountService.countOnlineUsers();
+        return ResponseEntity.ok(count);
+    }
+
+    @GetMapping("/admin/countBlocked")
+    public ResponseEntity<Integer> countBlockedUsers() {
+        int count = accountService.countBlockedUsers();
+        return ResponseEntity.ok(count);
+    }
+
+    @GetMapping("/admin/countTotalUsers")
+    public ResponseEntity<Long> countTotalUsers() {
+        long count = accountService.countTotalUsers();
+        return ResponseEntity.ok(count);
+    }
+
+    @GetMapping("/admin/countCreatedThisMonth")
+    public ResponseEntity<Long> countUsersCreatedThisMonth() {
+        long count = accountService.countUsersCreatedThisMonth();
+        return ResponseEntity.ok(count);
+    }
+
+
 }

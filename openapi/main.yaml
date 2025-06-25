@@ -10,6 +10,10 @@ servers:
 tags:
   - name: "User"
     description: "Operations on users"
+  - name: "Bus"
+    description: "Operations on bus"
+  - name: "Station"
+    description: "Operations on stations"
 
 paths:
   /auth/signupAsClient:
@@ -114,7 +118,322 @@ paths:
                   $ref: '#/components/schemas/UserDTO'
         '404':
           description: Not found
-
+  /admin/countOnline:
+    get:
+      tags:
+        - "User"
+      description: "Count the number of online users"
+      operationId: countOnline
+      responses:
+        '200':
+          description: "Number of online users"
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int32
+        '404':
+          description: "Not Found"
+  /admin/countBlocked:
+    get:
+      tags:
+        - "User"
+      description: "Count the number of blocked users"
+      operationId: countBlocked
+      responses:
+        '200':
+          description: "Number of blocked users"
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int32
+        '404':
+          description: "Not Found"
+  /admin/countTotalUsers:
+    get:
+      tags:
+        - "User"
+      description: "Count the total number of users"
+      operationId: countTotalUsers
+      responses:
+        '200':
+          description: "Total number of users"
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int64
+        '404':
+          description: "Not Found"
+  /admin/countUsersCreatedThisMonth:
+    get:
+      tags:
+        - "User"
+      description: "Count the number of users created in a month"
+      operationId: countUsersCreatedThisMonth
+      responses:
+        '200':
+          description: "Number of users created in a month"
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int64
+        '404':
+          description: "Not Found"
+  /bus/createBus:
+    post:
+      tags:
+        - "Bus"
+      summary: "Create a new bus"
+      description: "Create an endpoint for registering a new bus"
+      operationId: createBus
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBusRequestDTO'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateBusResponseDTO'
+        '400':
+          description: Bad Request
+  /bus/admin/buses:
+    get:
+      tags:
+        - "Bus"
+      description: "Get all bus"
+      operationId: getAllBus
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BusDTO'
+        '404':
+          description: Not found
+  /bus/admin/countInServiceBus:
+    get:
+      tags:
+        - "Bus"
+      description: "Count the number of bus in service"
+      operationId: countInServiceBus
+      responses:
+        '200':
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int32
+        '404':
+          description: "Not Found"
+  /bus/admin/countInMaintenanceBus:
+    get:
+      tags:
+        - "Bus"
+      description: "Count the number of bus in maintenance"
+      operationId: countInMaintenanceBus
+      responses:
+        '200':
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int32
+        '404':
+          description: "Not Found"
+  /bus/admin/totalCapacity:
+    get:
+      tags:
+        - "Bus"
+      description: "Get the total capacity of bus in service"
+      operationId: getTotalCapacity
+      responses:
+        '200':
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int32
+        '404':
+          description: "Not Found"
+  /bus/delete/{id}:
+    delete:
+      tags:
+        - "Bus"
+      description: "Delete a bus"
+      operationId: deleteBus
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: "Bus deleted successfully"
+        '404':
+          description: "Not Found"
+  /bus/{id}:
+    patch:
+      tags:
+        - "Bus"
+      description: "Create an endpoint for updating a bus"
+      operationId: updateBus
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: "The id of the bus to update"
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateBusRequestDTO'
+      responses:
+        '200':
+          description: "Bus updated successfully"
+        '404':
+          description: Not found
+  /station/createStation:
+    post:
+      tags:
+        - "Station"
+      summary: "Create a new Station"
+      description: "Create an endpoint for registering a new station"
+      operationId: createStation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateStationRequestDTO'
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+  /station/admin/stations:
+    get:
+      tags:
+        - "Station"
+      description: "Get all stations"
+      operationId: getAllStations
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StationDTO'
+        '404':
+          description: Not found
+  /station/admin/{id}:
+    patch:
+      tags:
+        - "Station"
+      description: "Create an endpoint for updating a station"
+      operationId: updateStation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: "The id of the station to update"
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateStationRequestDTO'
+      responses:
+        '200':
+          description: "Bus updated successfully"
+        '404':
+          description: Not found
+  /station/delete/{id}:
+    delete:
+      tags:
+        - "Station"
+      description: "Delete a station"
+      operationId: deleteStation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: "Station deleted successfully"
+        '404':
+          description: "Not Found"
+  /station/admin/countInServiceStation:
+    get:
+      tags:
+        - "Station"
+      description: "Count the number of station in service"
+      operationId: countInServiceStation
+      responses:
+        '200':
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int32
+        '404':
+          description: "Not Found"
+  /station/admin/countInMaintenanceStation:
+    get:
+      tags:
+        - "Station"
+      description: "Count the number of station in maintenance"
+      operationId: countInServiceStation
+      responses:
+        '200':
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int32
+        '404':
+          description: "Not Found"
+  /station/admin/countAllStations:
+    get:
+      tags:
+        - "Station"
+      description: "Count the total number of stations"
+      operationId: countAllStations
+      responses:
+        '200':
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int32
+        '404':
+          description: "Not Found"
 
 
 
@@ -189,6 +508,116 @@ components:
           type: string
         role:
           type: string
+        created_at:
+          type: string
+    CreateBusRequestDTO:
+      type: object
+      properties:
+        busNumber:
+          type: integer
+        matriculation:
+          type: string
+        capacity:
+          type: integer
+        status:
+          type: string
+    CreateBusResponseDTO:
+      type: object
+      properties:
+        busId:
+          type: string
+          format: uuid
+    BusDTO:
+      type: object
+      properties:
+        busId:
+          type: string
+          format: uuid
+        busNumber:
+          type: integer
+          format: int32
+        matriculation:
+          type: string
+        capacity:
+          type: integer
+          format: int32
+        status:
+          type: string
+          example: "En service"
+    UpdateBusRequestDTO:
+      type: object
+      properties:
+        busNumber:
+          type: integer
+          format: int32
+        matriculation:
+          type: string
+        capacity:
+          type: integer
+        status:
+          type: string
+    CreateStationRequestDTO:
+      type: object
+      properties:
+        stationName:
+          type: string
+        address:
+          type: string
+        stationType:
+          type: string
+        status:
+          type: string
+        latitude:
+          type: double
+        longitude:
+          type: double
+    MapBoundsDTO:
+      type: object
+      required:
+        - north
+        - south
+        - east
+        - west
+      properties:
+        north:
+          type: number
+          format: double
+        south:
+          type: number
+          format: double
+        east:
+          type: number
+          format: double
+        west:
+          type: number
+          format: double
+    StationDTO:
+      type: object
+      properties:
+        stationId:
+          type: string
+          format: uuid
+        stationName:
+          type: string
+          example: "Marché Central"
+        address:
+          type: string
+          example: "Boulevard de la liberté, Douala"
+        stationType:
+          type: string
+          example: "INTERMEDIATE"
+        status:
+          type: string
+          example: "ACTIVE"
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+
+
+
 
 
 

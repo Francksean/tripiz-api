@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -37,6 +39,7 @@ public class UserService {
         User user = User.builder()
                 .email(request.getEmail())
                 .password(request.getPassword())
+                .createdAt(LocalDateTime.now())
                 .build();
 
         User savedUser = userRepository.save(user);
@@ -56,8 +59,9 @@ public class UserService {
         User user = User.builder()
                 .email(request.getEmail())
                 .password(request.getPassword())
+                .createdAt(LocalDateTime.now())
+                .role("Driver")
                 .build();
-        user.setRole("driver");
 
         User savedUser = userRepository.save(user);
         return userMapper.toSignupResponseDTO(savedUser);
@@ -86,4 +90,22 @@ public class UserService {
         }
         return users.stream().map(userMapper::toUserDTO).toList();
     }
+
+    public int countOnlineUsers() {
+        return (int) userRepository.countByStatusIgnoreCase("ONLINE");
+    }
+
+    public int countBlockedUsers() {
+        return (int) userRepository.countByStatusIgnoreCase("BLOCKED");
+    }
+
+    public Long countTotalUsers() {
+        return userRepository.count();
+    }
+
+    public long countUsersCreatedThisMonth() {
+        LocalDateTime startOfMonth = LocalDate.now().withDayOfMonth(1).atStartOfDay();
+        return userRepository.countByCreatedAtAfter(startOfMonth);
+    }
+
 }
