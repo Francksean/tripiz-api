@@ -1,32 +1,50 @@
 package com.tripiz.api.wallet.service;
 
+import com.tripiz.api.model.PaymentRequestDTO;
+import com.tripiz.api.model.RechargeRequestDTO;
 import com.tripiz.api.wallet.domain.*;
 import com.tripiz.api.wallet.enums.TransactionStatus;
 import com.tripiz.api.wallet.exceptions.InsufficientFundsException;
+import com.tripiz.api.wallet.exceptions.PaymentProcessingException;
 import com.tripiz.api.wallet.repositories.BalanceHistoryRepository;
 import com.tripiz.api.wallet.repositories.TransactionRepository;
 import com.tripiz.api.wallet.repositories.WalletRepository;
+import com.tripiz.api.wallet.types.NotchPaymentResponse;
+import com.tripiz.api.wallet.types.NotchPayTransaction;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import com.google.gson.Gson;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
 public class TransactionService {
+
     @Autowired
     WalletRepository walletRepository;
     @Autowired
     TransactionRepository transactionRepository;
     @Autowired
     BalanceHistoryRepository balanceHistoryRepository;
+    @Autowired
+    Gson gson;
 
-    public Recharge initiateRecharge(RechargeRequest request) {
+    @Value("${notchpay.public-key}")
+    private String notchpayPublicKey;
+
+    @Transactional
+    public Recharge initiateRecharge(RechargeRequestDTO request) {
         Wallet wallet = walletRepository.findById(request.getWalletId())
                 .orElseThrow();
-
-        // Vérifier les limites
-//        checkTransactionLimits(wallet, request.getAmount(), LimitType.RECHARGE);
 
         Recharge recharge = new Recharge();
         recharge.setAmount(request.getAmount());
@@ -34,52 +52,143 @@ public class TransactionService {
         recharge.setTimestamp(LocalDateTime.now());
         recharge.setReference(UUID.randomUUID().toString());
         recharge.setStatus(TransactionStatus.PENDING);
+        recharge.setRechargerNumber(request.getPhone());
+        recharge.setChannel(request.getChannel());
 
+        // Sauvegarder d'abord la transaction
+        recharge = transactionRepository.save(recharge);
 
-        return transactionRepository.save(recharge);
+        try {
+            processNotchPayRecharge(recharge);
+            return recharge;
+        } catch (Exception e) {
+            recharge.setStatus(TransactionStatus.FAILED);
+            transactionRepository.save(recharge);
+            throw new PaymentProcessingException("Échec du traitement de la recharge", e);
+        }
     }
 
-    public Payment initiatePayment(PaymentRequest request) {
+    private void processNotchPayRecharge(Recharge recharge) throws Exception {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("reference", recharge.getReference());
+        payload.put("amount", recharge.getAmount());
+        payload.put("phone", recharge.getRechargerNumber());
+        payload.put("currency", "XAF");
+        payload.put("description", "Recharge de portefeuille");
+
+        HttpResponse<String> createResponse = createNotchPayment(payload);
+
+        if (createResponse.statusCode() != 201) {
+            throw new PaymentProcessingException("Échec de la création du paiement: " + createResponse.body());
+        }
+
+        NotchPaymentResponse responseData = gson.fromJson(createResponse.body(), NotchPaymentResponse.class);
+        NotchPayTransaction transaction = responseData.getTransaction();
+        String paymentReference = transaction.getReference();
+
+        // Préparer les données de finalisation
+        Map<String, Object> paymentDetails = new HashMap<>();
+        paymentDetails.put("channel", recharge.getChannel());
+
+        Map<String, String> data = new HashMap<>();
+        data.put("phone", recharge.getRechargerNumber());
+        paymentDetails.put("data", data);
+
+        HttpResponse<String> finalizeResponse = finalizePayment(paymentReference, paymentDetails);
+
+        if (finalizeResponse.statusCode() != 200) {
+            throw new PaymentProcessingException("Échec de la finalisation du paiement: " + finalizeResponse.body());
+        }
+
+        NotchPaymentResponse paymentResult = gson.fromJson(finalizeResponse.body(), NotchPaymentResponse.class);
+
+        if (!"Accepted".equals(paymentResult.getStatus())) {
+            throw new PaymentProcessingException("Paiement refusé: " + paymentResult.getMessage());
+        }
+
+        // Mettre à jour la transaction avec les infos de NotchPay
+        recharge.setPaymentGatewayReference(paymentResult.getTransaction().getId());
+        recharge.setStatus(TransactionStatus.COMPLETE);
+        transactionRepository.save(recharge);
+
+        // Mettre à jour le solde du wallet
+        Wallet wallet = recharge.getWallet();
+        double oldBalance = wallet.getBalance();
+        wallet.setBalance(oldBalance + recharge.getAmount());
+        walletRepository.save(wallet);
+
+        // Enregistrer l'historique du solde
+        saveBalanceHistory(wallet, oldBalance, "RECHARGE");
+    }
+
+    private HttpResponse<String> createNotchPayment(Map<String, Object> data) throws Exception {
+        HttpClient client = HttpClient.newHttpClient();
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api.notchpay.co/payments/"))
+                .header("Content-Type", "application/json")
+                .header("Authorization", notchpayPublicKey)
+                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(data)))
+                .build();
+
+        return client.send(request, HttpResponse.BodyHandlers.ofString());
+    }
+
+    private HttpResponse<String> finalizePayment(String reference, Map<String, Object> data) throws Exception {
+        HttpClient client = HttpClient.newHttpClient();
+        String url = "https://api.notchpay.co/payments/" + reference;
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Content-Type", "application/json")
+                .header("Authorization", notchpayPublicKey)
+                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(data)))
+                .build();
+
+        return client.send(request, HttpResponse.BodyHandlers.ofString());
+    }
+
+    @Transactional
+    public Spending initiatePayment(PaymentRequestDTO request) {
         Wallet wallet = walletRepository.findById(request.getWalletId())
                 .orElseThrow();
 
-        // Vérifier le solde et les limites
-        if(wallet.getBalance().compareTo(request.getAmount()) < 0) {
+        if(wallet.getBalance() < request.getAmount()) {
             throw new InsufficientFundsException("Solde insuffisant");
         }
-//        checkTransactionLimits(wallet, request.getAmount(), LimitType.PAYMENT);
 
-        Payment payment = new Payment();
-        payment.setAmount(request.getAmount());
-        payment.setWallet(wallet);
-        payment.setTimestamp(LocalDateTime.now());
-        payment.setReference(UUID.randomUUID().toString());
-        payment.setStatus(TransactionStatus.PENDING);
+        Spending spending = new Spending();
+        spending.setAmount(request.getAmount());
+        spending.setWallet(wallet);
+        spending.setTimestamp(LocalDateTime.now());
+        spending.setReference(UUID.randomUUID().toString());
+        spending.setStatus(TransactionStatus.PENDING);
 
-//        if(request.getBeneficiaryId() != null) {
-//            Beneficiary beneficiary = beneficiaryRepository.findById(request.getBeneficiaryId())
-//                    .orElseThrow();
-//            payment.setBeneficiary(beneficiary);
-//        }
-
-        return transactionRepository.save(payment);
+        return transactionRepository.save(spending);
     }
 
-//    private void checkTransactionLimits(Wallet wallet, BigDecimal amount, LimitType type) {
-//        TransactionLimit limit = limitRepository.findByWalletIdAndLimitType(wallet.getId(), type)
-//                .orElseThrow();
-//
-//        if(amount.compareTo(limit.getPerTransactionLimit()) > 0) {
-//            throw new TransactionLimitExceededException("Limite par transaction dépassée");
-//        }
-//
-//        // Vérifier la limite journalière (implémentation simplifiée)
-//        BigDecimal dailyTotal = transactionRepository.calculateDailyTotal(wallet.getId(), type, LocalDate.now());
-//        if(dailyTotal.add(amount).compareTo(limit.getDailyLimit()) > 0) {
-//            throw new TransactionLimitExceededException("Limite journalière dépassée");
-//        }
-//    }
+    @Transactional
+    public void completePayment(Long paymentId) {
+        Spending spending = (Spending) transactionRepository.findById(paymentId)
+                .orElseThrow();
 
+        if(spending.getStatus() != TransactionStatus.PENDING) {
+            throw new IllegalStateException("Transaction déjà traitée");
+        }
+
+        Wallet wallet = spending.getWallet();
+        double oldBalance = wallet.getBalance();
+
+        spending.setStatus(TransactionStatus.COMPLETE);
+        wallet.setBalance(oldBalance - spending.getAmount());
+
+        transactionRepository.save(spending);
+        walletRepository.save(wallet);
+
+        saveBalanceHistory(wallet, oldBalance, "PAIEMENT");
+    }
+
+    @Transactional
     public void completeTransaction(Long transactionId, boolean success) {
         Transaction transaction = transactionRepository.findById(transactionId)
                 .orElseThrow();
@@ -92,15 +201,14 @@ public class TransactionService {
         double oldBalance = wallet.getBalance();
 
         if(success) {
-            transaction.setStatus(TransactionStatus.SUCCESS);
+            transaction.setStatus(TransactionStatus.COMPLETE);
 
             if(transaction instanceof Recharge) {
-                wallet.setBalance(oldBalance += transaction.getAmount());
-            } else if(transaction instanceof Payment) {
-                wallet.setBalance(oldBalance -= transaction.getAmount());
+                wallet.setBalance(oldBalance + transaction.getAmount());
+            } else if(transaction instanceof Spending) {
+                wallet.setBalance(oldBalance - transaction.getAmount());
             }
 
-            // Audit du solde
             saveBalanceHistory(wallet, oldBalance, transaction.getClass().getSimpleName());
         } else {
             transaction.setStatus(TransactionStatus.FAILED);
@@ -120,5 +228,3 @@ public class TransactionService {
         balanceHistoryRepository.save(history);
     }
 }
-
-

@@ -200,6 +200,8 @@ components:
           format: double
         phone :
           type: string
+        channel :
+          type : string
     PaymentRequestDTO :
       type : object
       properties:

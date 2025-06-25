@@ -14,6 +14,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Table(name = "recharge")
 public class Recharge extends Transaction {
-    private String paymentGatewayReference; // ID de la transaction chez le processeur de paiement
+    private String paymentGatewayReference;
+    private String rechargerNumber;
+    private String channel;
 
 }

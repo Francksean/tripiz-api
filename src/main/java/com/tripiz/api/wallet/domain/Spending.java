@@ -12,7 +12,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "payment")
-public class Payment extends Transaction {
+public class Spending extends Transaction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
