@@ -15,45 +15,53 @@ import java.util.UUID;
 @Transactional
 public class WalletService {
     @Autowired
-    WalletRepository walletRepository;
+    private WalletRepository walletRepository;
+
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     public Wallet createWalletForUser(UUID userId) {
-        User user = userRepository.findById(userId).orElseThrow();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
+
         Wallet wallet = new Wallet();
         wallet.setUser(user);
         wallet.setWalletReference(UUID.randomUUID().toString());
         wallet.setBalance(0.0);
 
-        // Initialiser les limites par défaut
-//        initDefaultLimits(wallet);
-
         return walletRepository.save(wallet);
     }
 
-//    private void initDefaultLimits(Wallet wallet) {
-//        Arrays.stream(LimitType.values()).forEach(type -> {
-//            TransactionLimit limit = new TransactionLimit();
-//            limit.setWallet(wallet);
-//            limit.setLimitType(type);
-//            limit.setDailyLimit(type == LimitType.PAYMENT ?
-//                    new BigDecimal("1000") : new BigDecimal("5000"));
-//            limit.setPerTransactionLimit(new BigDecimal("500"));
-//            limitRepository.save(limit);
-//        });
-//    }
-
-
-    public Wallet getUserWallet(Long userId) {
+    public Wallet getUserWallet(UUID userId) {
         return walletRepository.findByUserId(userId)
-                .orElseThrow(() -> new EntityNotFoundException("Wallet not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Wallet not found for user: " + userId));
+    }
+
+    // Recherche par objet User
+    public Wallet getUserWalletByUser(User user) {
+        return walletRepository.findByUser(user)
+                .orElseThrow(() -> new EntityNotFoundException("Wallet not found for user: " + user.getUserId()));
     }
 
     public double getWalletBalance(UUID walletId) {
         return walletRepository.findById(walletId)
                 .map(Wallet::getBalance)
-                .orElseThrow();
+                .orElseThrow(() -> new EntityNotFoundException("Wallet not found with id: " + walletId));
     }
 
+    public Wallet getWalletById(UUID walletId) {
+        return walletRepository.findById(walletId)
+                .orElseThrow(() -> new EntityNotFoundException("Wallet not found with id: " + walletId));
+    }
+
+    // Méthodes utilitaires supplémentaires
+    public boolean walletExists(UUID walletId) {
+        return walletRepository.existsById(walletId);
+    }
+
+    public void updateWalletBalance(UUID walletId, double newBalance) {
+        Wallet wallet = getWalletById(walletId);
+        wallet.setBalance(newBalance);
+        walletRepository.save(wallet);
+    }
 }

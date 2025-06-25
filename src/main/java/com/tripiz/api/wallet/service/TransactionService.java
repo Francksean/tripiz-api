@@ -1,5 +1,6 @@
 package com.tripiz.api.wallet.service;
 
+import com.google.gson.Gson;
 import com.tripiz.api.model.PaymentRequestDTO;
 import com.tripiz.api.model.RechargeRequestDTO;
 import com.tripiz.api.wallet.domain.*;
@@ -9,13 +10,12 @@ import com.tripiz.api.wallet.exceptions.PaymentProcessingException;
 import com.tripiz.api.wallet.repositories.BalanceHistoryRepository;
 import com.tripiz.api.wallet.repositories.TransactionRepository;
 import com.tripiz.api.wallet.repositories.WalletRepository;
-import com.tripiz.api.wallet.types.NotchPaymentResponse;
 import com.tripiz.api.wallet.types.NotchPayTransaction;
+import com.tripiz.api.wallet.types.NotchPaymentResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.google.gson.Gson;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -38,13 +38,12 @@ public class TransactionService {
     @Autowired
     Gson gson;
 
-    @Value("${notchpay.public-key}")
+    @Value("${notchpay.key.public}")
     private String notchpayPublicKey;
 
     @Transactional
     public Recharge initiateRecharge(RechargeRequestDTO request) {
-        Wallet wallet = walletRepository.findById(request.getWalletId())
-                .orElseThrow();
+        Wallet wallet = walletRepository.findById(request.getWalletId()).orElseThrow();
 
         Recharge recharge = new Recharge();
         recharge.setAmount(request.getAmount());
@@ -150,10 +149,9 @@ public class TransactionService {
 
     @Transactional
     public Spending initiatePayment(PaymentRequestDTO request) {
-        Wallet wallet = walletRepository.findById(request.getWalletId())
-                .orElseThrow();
+        Wallet wallet = walletRepository.findById(request.getWalletId()).orElseThrow();
 
-        if(wallet.getBalance() < request.getAmount()) {
+        if (wallet.getBalance() < request.getAmount()) {
             throw new InsufficientFundsException("Solde insuffisant");
         }
 
@@ -172,7 +170,7 @@ public class TransactionService {
         Spending spending = (Spending) transactionRepository.findById(paymentId)
                 .orElseThrow();
 
-        if(spending.getStatus() != TransactionStatus.PENDING) {
+        if (spending.getStatus() != TransactionStatus.PENDING) {
             throw new IllegalStateException("Transaction déjà traitée");
         }
 
@@ -193,19 +191,19 @@ public class TransactionService {
         Transaction transaction = transactionRepository.findById(transactionId)
                 .orElseThrow();
 
-        if(transaction.getStatus() != TransactionStatus.PENDING) {
+        if (transaction.getStatus() != TransactionStatus.PENDING) {
             throw new IllegalStateException("Transaction déjà traitée");
         }
 
         Wallet wallet = transaction.getWallet();
         double oldBalance = wallet.getBalance();
 
-        if(success) {
+        if (success) {
             transaction.setStatus(TransactionStatus.COMPLETE);
 
-            if(transaction instanceof Recharge) {
+            if (transaction instanceof Recharge) {
                 wallet.setBalance(oldBalance + transaction.getAmount());
-            } else if(transaction instanceof Spending) {
+            } else if (transaction instanceof Spending) {
                 wallet.setBalance(oldBalance - transaction.getAmount());
             }
 

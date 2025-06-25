@@ -1,9 +1,6 @@
 package com.tripiz.api.wallet.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
+@DiscriminatorValue("RECHARGE")
 public class Recharge extends Transaction {
     private String paymentGatewayReference;
     private String rechargerNumber;

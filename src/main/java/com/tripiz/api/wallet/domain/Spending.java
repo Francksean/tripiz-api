@@ -13,10 +13,8 @@ import java.util.UUID;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
+@DiscriminatorValue("SPENDING")
 public class Spending extends Transaction {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private UUID paymentId;
 
 }
