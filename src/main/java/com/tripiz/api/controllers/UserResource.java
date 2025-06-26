@@ -68,7 +68,7 @@ public class UserResource {
         return ResponseEntity.ok(count);
     }
 
-    @GetMapping("/admin/countCreatedThisMonth")
+    @GetMapping("/admin/countUsersCreatedThisMonth")
     public ResponseEntity<Long> countUsersCreatedThisMonth() {
         long count = accountService.countUsersCreatedThisMonth();
         return ResponseEntity.ok(count);
