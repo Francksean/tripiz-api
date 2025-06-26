@@ -1,29 +1,36 @@
-# Étape 1 : Image légère JRE Alpine basée sur Temurin (Java 21)
-FROM eclipse-temurin:21-jre-alpine
+# Étape 1 : Build de l'application
+FROM eclipse-temurin:21-jdk-alpine AS build
 
-# Créer un utilisateur non-root pour plus de sécurité
+# Installer les outils nécessaires (curl, bash, etc.)
+RUN apk add --no-cache bash curl unzip
+
+# Crée l'utilisateur spring
 RUN addgroup -S spring && adduser -S spring -G spring
 
-# Définir le répertoire de travail
 WORKDIR /app
 
-# Argument pour spécifier le nom du fichier JAR à copier
-ARG JAR_FILE=build/libs/api-0.0.1-SNAPSHOT.jar
+# Copier les fichiers du projet
+COPY . .
 
-# Copier le JAR dans le conteneur
-COPY ${JAR_FILE} app.jar
+# Donner les droits d'exécution à Gradle wrapper s'il est présent
+RUN chmod +x ./gradlew
 
-# Donner les permissions au user spring (optionnel mais recommandé)
-RUN chown -R spring:spring /app
+# Build de l'application sans les tests
+RUN ./gradlew clean build -x test -x check --no-daemon
 
-# Passer à l'utilisateur spring
+# Étape 2 : Image finale allégée
+FROM eclipse-temurin:21-jre-alpine
+
+# Créer l'utilisateur spring
+RUN addgroup -S spring && adduser -S spring -G spring
 USER spring:spring
 
-# Exposer le port
+WORKDIR /app
+
+# Copier le jar compilé depuis le build stage
+COPY --from=build /app/build/libs/*.jar app.jar
+
 EXPOSE 8080
 
-# Définir les options Java via ENV pour éviter les soucis d'expansion de variables dans ENTRYPOINT
-ENV JAVA_OPTS="-XX:MaxRAMPercentage=75"
-
-# Entrée du conteneur
-ENTRYPOINT exec java $JAVA_OPTS -jar app.jar
+ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75"
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /app/app.jar"]
