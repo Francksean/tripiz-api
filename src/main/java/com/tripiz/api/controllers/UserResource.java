@@ -38,13 +38,13 @@ public class UserResource {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/users/delete/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
         accountService.deleteUser(id);
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/admin/users")
+    @GetMapping("/admin/getAllUsers")
     public ResponseEntity<List<UserDTO>> getAllUsers() {
         List<UserDTO> user = accountService.getAllUsers();
         return ResponseEntity.ok(user);

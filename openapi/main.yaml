@@ -18,7 +18,7 @@ tags:
     description: "Operations on itineraries"
 
 paths:
-  /auth/signupAsClient:
+  /user/auth/signupAsClient:
     post:
       tags:
         - "User"
@@ -40,7 +40,7 @@ paths:
                 $ref: '#/components/schemas/SignupResponseDTO'
         '400':
           description: Bad Request
-  /auth/signupAsDriver:
+  /user/admin/auth/signupAsDriver:
     post:
       tags:
         - "User"
@@ -86,7 +86,7 @@ paths:
           description: "User updated successfully"
         '404':
           description: Not found
-  /users/delete/{id}:
+  /user/delete/{id}:
     delete:
       tags:
         - "User"
@@ -103,7 +103,7 @@ paths:
           description: "User deleted successfully"
         '404':
           description: "Not Found"
-  /users:
+  /user/admin/getAllUsers:
     get:
       tags:
         - "User"
@@ -120,7 +120,7 @@ paths:
                   $ref: '#/components/schemas/UserDTO'
         '404':
           description: Not found
-  /admin/countOnline:
+  /user/admin/countOnline:
     get:
       tags:
         - "User"
@@ -136,7 +136,7 @@ paths:
                 format: int32
         '404':
           description: "Not Found"
-  /admin/countBlocked:
+  /user/admin/countBlocked:
     get:
       tags:
         - "User"
@@ -152,7 +152,7 @@ paths:
                 format: int32
         '404':
           description: "Not Found"
-  /admin/countTotalUsers:
+  /user/admin/countTotalUsers:
     get:
       tags:
         - "User"
@@ -168,7 +168,7 @@ paths:
                 format: int64
         '404':
           description: "Not Found"
-  /admin/countUsersCreatedThisMonth:
+  /user/admin/countUsersCreatedThisMonth:
     get:
       tags:
         - "User"
