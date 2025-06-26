@@ -10,6 +10,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 
@@ -22,10 +23,13 @@ public class ItineraryService {
 
     @Transactional
     public void createItinerary(CreateItineraryRequestDTO request) {
+        if (itineraryRepository.existsByItineraryName(request.getItineraryName())) {
+            throw new RuntimeException("Itinerary already exists");
+        }
 
         Itinerary itinerary = Itinerary.builder()
                 .itineraryName(request.getItineraryName())
-                .routeId(request.getRouteId())
+                .routeName(request.getRouteName())
                 .direction(Direction.valueOf(request.getDirection().name()))
                 .arrivalStation(request.getArrivalStation())
                 .departureStation(request.getDepartureStation())
@@ -41,4 +45,9 @@ public class ItineraryService {
                 .map(itineraryMapper::toItineraryResponseDTO)
                 .orElseThrow(() -> new RuntimeException("Itinerary not found"));
     }
+
+    public List<Itinerary> getItinerariesByDepartureStation(UUID stationId) {
+        return itineraryRepository.findByDepartureStation(stationId);
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.tripiz.api.controllers;
 
 
+import com.tripiz.api.domain.Itinerary;
 import com.tripiz.api.model.*;
 import com.tripiz.api.service.ItineraryService;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,12 @@ public class ItineraryResource {
     @GetMapping("/{id}")
     public ResponseEntity<ItineraryResponseDTO> getItineraryById(@PathVariable UUID id) {
         ItineraryResponseDTO response = itineraryService.getItineraryById(id);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/getStation/{id}")
+    public ResponseEntity<List<Itinerary>> getItinerariesByDepartureStation(@PathVariable UUID id) {
+        List<Itinerary> response = itineraryService.getItinerariesByDepartureStation(id);
         return ResponseEntity.ok(response);
     }
 }

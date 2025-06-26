@@ -477,6 +477,29 @@ paths:
                 $ref: '#/components/schemas/ItineraryResponseDTO'
         '404':
           description: "Itinerary not found"
+  /itinerary/getStation/{id}:
+    get:
+      tags:
+        - "Itinerary"
+      summary: "Get itinerary by station ID"
+      description: "Retrieve an itinerary using a station identifier"
+      operationId: getItinerariesByDepartureStation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: "Itinerary found"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItineraryResponseDTO'
+        '404':
+          description: "Itinerary not found"
 
 
 
@@ -694,9 +717,8 @@ components:
     CreateItineraryRequestDTO:
       type: object
       properties:
-        route_id:
+        route_name:
           type: string
-          format: uuid
         direction:
           type: string
           enum: [ALLER, RETOUR]

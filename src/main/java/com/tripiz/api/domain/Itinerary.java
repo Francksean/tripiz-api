@@ -22,8 +22,8 @@ public class Itinerary {
     @Column(name = "itineray_id")
     public UUID itineraryId;
 
-    @Column(name = "route_id")
-    public UUID routeId;
+    @Column(name = "route_name")
+    public String routeName;
 
     @Column(name = "direction")
     public Direction direction;
