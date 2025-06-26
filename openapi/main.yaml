@@ -14,6 +14,8 @@ tags:
     description: "Operations on bus"
   - name: "Station"
     description: "Operations on stations"
+  - name: "Itinerary"
+    description: "Operations on itineraries"
 
 paths:
   /auth/signupAsClient:
@@ -434,6 +436,48 @@ paths:
                 format: int32
         '404':
           description: "Not Found"
+  /itinerary/admin/createItinerary:
+    post:
+      tags:
+        - "Itinerary"
+      summary: "Create a new Itinerary"
+      description: "Create an endpoint for registering a new itinerary"
+      operationId: createItinerary
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateItineraryRequestDTO'
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+  /itinerary/{id}:
+    get:
+      tags:
+        - "Itinerary"
+      summary: "Get itinerary by ID"
+      description: "Retrieve a single itinerary using its unique identifier"
+      operationId: getItineraryById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: "Itinerary found"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItineraryResponseDTO'
+        '404':
+          description: "Itinerary not found"
+
 
 
 
@@ -498,6 +542,7 @@ components:
       properties:
         user_id:
           type: string
+          format: uuid
         email:
           type: string
         first_name:
@@ -644,6 +689,53 @@ components:
           type: number
           format: double
         longitude:
+          type: number
+          format: double
+    CreateItineraryRequestDTO:
+      type: object
+      properties:
+        route_id:
+          type: string
+          format: uuid
+        direction:
+          type: string
+          enum: [ALLER, RETOUR]
+        itinerary_name:
+          type: string
+        estimated_duration:
+          type: integer
+        departure_station:
+          type: string
+          format: uuid
+        arrival_station:
+          type: string
+          format: uuid
+        distance:
+          type: number
+          format: double
+    ItineraryResponseDTO:
+      type: object
+      properties:
+        itinerary_id:
+          type: string
+          format: uuid
+        route_id:
+          type: string
+          format: uuid
+        direction:
+          type: string
+          enum: [ ALLER, RETOUR ]
+        itinerary_name:
+          type: string
+        estimated_duration:
+          type: integer
+        departure_station:
+          type: string
+          format: uuid
+        arrival_station:
+          type: string
+          format: uuid
+        distance:
           type: number
           format: double
 
