@@ -162,7 +162,7 @@ public class TransactionService {
         spending.setWallet(wallet);
         spending.setTimestamp(LocalDateTime.now());
         spending.setReference(UUID.randomUUID().toString());
-        spending.setStatus(TransactionStatus.PENDING);
+        spending.setStatus(TransactionStatus.COMPLETE);
 
         return transactionRepository.save(spending);
     }
