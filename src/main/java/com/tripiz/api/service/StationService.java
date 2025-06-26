@@ -2,6 +2,7 @@ package com.tripiz.api.service;
 
 import com.tripiz.api.domain.Station;
 import com.tripiz.api.model.CreateStationRequestDTO;
+import com.tripiz.api.model.GetStationsRequestDTO;
 import com.tripiz.api.model.StationDTO;
 import com.tripiz.api.repository.StationRepository;
 import com.tripiz.api.service.mapper.StationMapper;
@@ -73,4 +74,17 @@ public class StationService {
     public int countAllStations() {
         return (int) stationRepository.count();
     }
+
+    public List<StationDTO> findAllStationsWithinSquare(GetStationsRequestDTO request) {
+        List<Station> stations = stationRepository.findAllWithinSquare(
+                request.getMinLat(),
+                request.getMaxLat(),
+                request.getMinLng(),
+                request.getMaxLng()
+        );
+
+        return stationMapper.toDTOList(stations);
+    }
+
+
 }

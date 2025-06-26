@@ -436,6 +436,32 @@ paths:
                 format: int32
         '404':
           description: "Not Found"
+  /station/getStations/within-square:
+    post:
+      tags:
+        - "Station"
+      summary: "Get stations within square bounds"
+      description: "Retrieve all stations within a geographical square"
+      operationId: getStationsWithinSquare
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetStationsRequestDTO'
+      responses:
+        '200':
+          description: "List of stations within the specified bounds"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StationDTO'
+        '400':
+          description: Invalid input
+        '500':
+          description: Server error
   /itinerary/admin/createItinerary:
     post:
       tags:
@@ -670,26 +696,6 @@ components:
         longitude:
           type: number
           format: double
-    MapBoundsDTO:
-      type: object
-      required:
-        - north
-        - south
-        - east
-        - west
-      properties:
-        north:
-          type: number
-          format: double
-        south:
-          type: number
-          format: double
-        east:
-          type: number
-          format: double
-        west:
-          type: number
-          format: double
     StationDTO:
       type: object
       properties:
@@ -758,6 +764,21 @@ components:
           type: string
           format: uuid
         distance:
+          type: number
+          format: double
+    GetStationsRequestDTO:
+      type: object
+      properties:
+        minLat:
+          type: number
+          format: double
+        maxLat:
+          type: number
+          format: double
+        minLng:
+          type: number
+          format: double
+        maxLng:
           type: number
           format: double
 

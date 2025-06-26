@@ -12,13 +12,12 @@ public interface StationRepository extends JpaRepository<Station, UUID> {
 
     boolean existsByStationName(String stationName);
 
-    @Query("SELECT s FROM Station s WHERE s.latitude BETWEEN :south AND :north AND s.longitude BETWEEN :west AND :east")
-    List<Station> findByMapBounds(
-            @Param("north") double north,
-            @Param("south") double south,
-            @Param("east") double east,
-            @Param("west") double west
-    );
+    @Query("SELECT s FROM Station s WHERE s.latitude BETWEEN :minLat AND :maxLat AND s.longitude BETWEEN :minLng AND :maxLng")
+    List<Station> findAllWithinSquare(@Param("minLat") double minLat,
+                                      @Param("maxLat") double maxLat,
+                                      @Param("minLng") double minLng,
+                                      @Param("maxLng") double maxLng);
+
 
     long countByStatusIgnoreCase(String status);
 }
