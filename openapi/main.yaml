@@ -528,6 +528,64 @@ paths:
                 $ref: '#/components/schemas/ItineraryResponseDTO'
         '404':
           description: "Itinerary not found"
+  /itinerary/admin/getAll:
+    get:
+      tags:
+        - "Itinerary"
+      description: "Get all itineraries"
+      operationId: getAllItineraries
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ItineraryResponseDTO'
+        '404':
+          description: Not found
+  /itinerary/admin/delete/{id}:
+    delete:
+      tags:
+        - "Itinerary"
+      description: "Delete an itinerary"
+      operationId: deleteItinerary
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: "Itinerary deleted successfully"
+        '404':
+          description: "Not Found"
+  /itinerary/admin/{id}:
+    patch:
+      tags:
+        - "Itinerary"
+      description: "Create an endpoint for updating an itinerary"
+      operationId: updateItinerary
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: "The id of the itinerary to update"
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateItineraryRequestDTO'
+      responses:
+        '200':
+          description: "Itinerary updated successfully"
+        '404':
+          description: Not found
   /trip/createTrip:
     post:
       tags:

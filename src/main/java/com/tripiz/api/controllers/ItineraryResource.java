@@ -36,4 +36,22 @@ public class ItineraryResource {
         List<Itinerary> response = itineraryService.getItinerariesByDepartureStation(id);
         return ResponseEntity.ok(response);
     }
+
+    @PatchMapping("/admin/{id}")
+    public ResponseEntity<Void> updateItinerary(@PathVariable UUID id, @RequestBody CreateItineraryRequestDTO request) {
+        itineraryService.updateItinerary(id, request);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/admin/delete/{id}")
+    public ResponseEntity<Void> deleteItinerary(@PathVariable UUID id) {
+        itineraryService.deleteItinerary(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/admin/getAll")
+    public ResponseEntity<List<ItineraryResponseDTO>> getAllItineraries() {
+        List<ItineraryResponseDTO> station = itineraryService.getAllItineraries();
+        return ResponseEntity.ok(station);
+    }
 }
