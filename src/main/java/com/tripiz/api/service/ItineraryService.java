@@ -1,0 +1,44 @@
+package com.tripiz.api.service;
+
+import com.tripiz.api.domain.Direction;
+import com.tripiz.api.domain.Itinerary;
+import com.tripiz.api.model.CreateItineraryRequestDTO;
+import com.tripiz.api.model.ItineraryResponseDTO;
+import com.tripiz.api.repository.ItineraryRepository;
+import com.tripiz.api.service.mapper.ItineraryMapper;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.UUID;
+
+
+@Service
+@RequiredArgsConstructor
+public class ItineraryService {
+
+    public final ItineraryRepository itineraryRepository;
+    public final ItineraryMapper itineraryMapper;
+
+    @Transactional
+    public void createItinerary(CreateItineraryRequestDTO request) {
+
+        Itinerary itinerary = Itinerary.builder()
+                .itineraryName(request.getItineraryName())
+                .routeId(request.getRouteId())
+                .direction(Direction.valueOf(request.getDirection().name()))
+                .arrivalStation(request.getArrivalStation())
+                .departureStation(request.getDepartureStation())
+                .distance(request.getDistance())
+                .estimatedDuration(request.getEstimatedDuration())
+                .build();
+
+       itineraryRepository.save(itinerary);
+    }
+
+    public ItineraryResponseDTO getItineraryById(UUID id) {
+        return itineraryRepository.findById(id)
+                .map(itineraryMapper::toItineraryResponseDTO)
+                .orElseThrow(() -> new RuntimeException("Itinerary not found"));
+    }
+}
