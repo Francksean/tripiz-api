@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Date;
 import java.util.UUID;
 
@@ -24,20 +26,20 @@ public class Trip {
     @Column(name = "bus_id")
     private UUID busId;
 
-    @Column(name = "user_id")
-    private UUID userId;
+    @Column(name = "driver_id")
+    private UUID driverId;
 
     @Column(name = "itinerary_id")
     private UUID itineraryId;
 
     @Column(name = "trip_date")
-    private Date tripDate;
+    private LocalDate tripDate;
 
     @Column(name = "schedule_departure")
-    private String scheduleDeparture;
+    private LocalTime scheduleDeparture;
 
     @Column(name = "actual_departure")
-    private String actualDeparture;
+    private LocalTime actualDeparture;
 
     @Column(name = "trip_status")
     private String tripStatus;

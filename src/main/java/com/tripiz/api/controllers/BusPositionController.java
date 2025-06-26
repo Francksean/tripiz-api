@@ -19,7 +19,7 @@ public class BusPositionController {
     public BusPosition join(@Payload BusPosition position, SimpMessageHeaderAccessor headerAccessor) {
         headerAccessor.getSessionAttributes().put("busId", position.getBusId());
         position.setType(PositionMessageType.JOIN);
-        log.info("🟢 Bus joined: {}", position);
+        log.info(" Bus joined: {}", position);
         return position;
     }
 
@@ -27,7 +27,7 @@ public class BusPositionController {
     @SendTo("/topic/positions")
     public BusPosition updatePosition(@Payload BusPosition position) {
         position.setType(PositionMessageType.UPDATE);
-        log.info("🛰️ Bus updated: {}", position);
+        log.info("🛰 Bus updated: {}", position);
         return position;
     }
 }

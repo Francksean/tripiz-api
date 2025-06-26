@@ -16,6 +16,8 @@ tags:
     description: "Operations on stations"
   - name: "Itinerary"
     description: "Operations on itineraries"
+  - name: "Trip"
+    description: "Operations on trips"
 
 paths:
   /user/auth/signupAsClient:
@@ -526,6 +528,42 @@ paths:
                 $ref: '#/components/schemas/ItineraryResponseDTO'
         '404':
           description: "Itinerary not found"
+  /trip/createTrip:
+    post:
+      tags:
+        - "Trip"
+      summary: "Create a new Trip"
+      description: "Create an endpoint for registering a new trip"
+      operationId: createTrip
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTripRequestDTO'
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+  /trip/getTripsByDriver:
+    post:
+      tags:
+        - "Trip"
+      summary: "Get trips by the Driver id"
+      description: "Retrieve all trips conducted by a specific driver using its id"
+      operationId: getTripsByDriverId
+      responses:
+        '200':
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TripDTO'
+        '404':
+          description: "Not found"
 
 
 
@@ -781,7 +819,59 @@ components:
         maxLng:
           type: number
           format: double
-
+    TripDTO:
+      type: object
+      properties:
+        trip_id:
+          type: string
+          format: uuid
+        bus_id:
+          type: string
+          format: uuid
+        driver_id:
+          type: string
+          format: uuid
+        itinerary_id:
+          type: string
+          format: uuid
+        trip_date:
+          type: string
+          format: date
+        schedule_departure:
+          type: string
+          format: time
+        actual_departure:
+          type: string
+          format: time
+        trip_status:
+          type: string
+          example: "En cours"
+        passenger_count:
+          type: integer
+    CreateTripRequestDTO:
+      type: object
+      properties:
+        bus_id:
+          type: string
+          format: uuid
+        driver_id:
+          type: string
+          format: uuid
+        itinerary_id:
+          type: string
+          format: uuid
+        trip_date:
+          type: string
+          format: date
+        schedule_departure:
+          type: string
+          format: time
+        actual_departure:
+          type: string
+          format: time
+        trip_status:
+          type: string
+          example: "En cours"
 
 
 
