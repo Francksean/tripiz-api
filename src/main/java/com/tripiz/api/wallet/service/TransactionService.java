@@ -57,12 +57,15 @@ public class TransactionService {
         // Sauvegarder d'abord la transaction
         recharge = transactionRepository.save(recharge);
 
+        System.out.println("000000000000000000000");
+
         try {
             processNotchPayRecharge(recharge);
             return recharge;
         } catch (Exception e) {
             recharge.setStatus(TransactionStatus.FAILED);
             transactionRepository.save(recharge);
+            System.out.println(e.getMessage());
             throw new PaymentProcessingException("Échec du traitement de la recharge", e);
         }
     }
@@ -85,6 +88,7 @@ public class TransactionService {
         NotchPayTransaction transaction = responseData.getTransaction();
         String paymentReference = transaction.getReference();
 
+        System.out.println("TTTTTTTTTTTTTTTTTTTTTTTTT");
         // Préparer les données de finalisation
         Map<String, Object> paymentDetails = new HashMap<>();
         paymentDetails.put("channel", recharge.getChannel());
@@ -95,7 +99,7 @@ public class TransactionService {
 
         HttpResponse<String> finalizeResponse = finalizePayment(paymentReference, paymentDetails);
 
-        if (finalizeResponse.statusCode() != 200) {
+        if (finalizeResponse.statusCode() != 202) {
             throw new PaymentProcessingException("Échec de la finalisation du paiement: " + finalizeResponse.body());
         }
 
@@ -104,7 +108,6 @@ public class TransactionService {
         if (!"Accepted".equals(paymentResult.getStatus())) {
             throw new PaymentProcessingException("Paiement refusé: " + paymentResult.getMessage());
         }
-
         // Mettre à jour la transaction avec les infos de NotchPay
         recharge.setPaymentGatewayReference(paymentResult.getTransaction().getId());
         recharge.setStatus(TransactionStatus.COMPLETE);
@@ -122,7 +125,6 @@ public class TransactionService {
 
     private HttpResponse<String> createNotchPayment(Map<String, Object> data) throws Exception {
         HttpClient client = HttpClient.newHttpClient();
-
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://api.notchpay.co/payments/"))
                 .header("Content-Type", "application/json")

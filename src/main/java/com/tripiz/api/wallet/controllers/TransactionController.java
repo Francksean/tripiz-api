@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @Controller
-@RequestMapping("/api/transactions")
+@RequestMapping("/transactions")
 public class TransactionController {
     @Autowired
     private TransactionService transactionService;
@@ -27,6 +27,7 @@ public class TransactionController {
             Recharge recharge = transactionService.initiateRecharge(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(recharge);
         } catch (Exception e) {
+
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of(
                             "error", "Erreur lors de la recharge",
@@ -35,7 +36,7 @@ public class TransactionController {
         }
     }
 
-    @PostMapping("/payment")
+    @PostMapping("/spending")
     public ResponseEntity<?> initiatePayment(@RequestBody PaymentRequestDTO request) {
         try {
             Spending payment = transactionService.initiatePayment(request);
