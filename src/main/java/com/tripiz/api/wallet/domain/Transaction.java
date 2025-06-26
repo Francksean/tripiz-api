@@ -21,6 +21,9 @@ public abstract class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "transaction_type", insertable = false, updatable = false)
+    private String transactionType;
+
     private double amount;
     private LocalDateTime timestamp;
     private String reference; // Identifiant unique métier

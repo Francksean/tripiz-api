@@ -37,12 +37,6 @@ public class WalletService {
                 .orElseThrow(() -> new EntityNotFoundException("Wallet not found for user: " + userId));
     }
 
-    // Recherche par objet User
-    public Wallet getUserWalletByUser(User user) {
-        return walletRepository.findByUser(user)
-                .orElseThrow(() -> new EntityNotFoundException("Wallet not found for user: " + user.getUserId()));
-    }
-
     public double getWalletBalance(UUID walletId) {
         return walletRepository.findById(walletId)
                 .map(Wallet::getBalance)
