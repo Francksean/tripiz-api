@@ -1,5 +1,7 @@
 package com.tripiz.api.domain;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.tripiz.api.wallet.domain.Wallet;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -48,6 +50,10 @@ public class User {
     @Column(name = "role")
     @Builder.Default
     private String role = "client";
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonManagedReference // Permet la sérialisation de Wallet
+    private Wallet wallet;
 }
 
 

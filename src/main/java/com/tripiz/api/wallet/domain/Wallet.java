@@ -1,5 +1,7 @@
 package com.tripiz.api.wallet.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.tripiz.api.domain.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -22,14 +24,16 @@ public class Wallet {
     private UUID id;
 
     @Column(unique = true)
-    private String walletReference; // UUID ou code unique
+    private String walletReference;
 
     private double balance = 0.0;
 
     @OneToOne
     @JoinColumn(name = "user_id")
+    @JsonBackReference // Empêche la sérialisation circulaire côté parent
     private User user;
 
-    @OneToMany(mappedBy = "wallet")
-    private List<Transaction> transactions = new ArrayList<Transaction>();
+    @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference // Permet la sérialisation côté enfant
+    private List<Transaction> transactions = new ArrayList<>();
 }

@@ -1,5 +1,6 @@
 package com.tripiz.api.wallet.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.tripiz.api.wallet.enums.TransactionStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -24,8 +25,9 @@ public abstract class Transaction {
     private LocalDateTime timestamp;
     private String reference; // Identifiant unique métier
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "wallet_id")
+    @JsonBackReference // Empêche la sérialisation circulaire côté enfant
     private Wallet wallet;
 
     @Enumerated(EnumType.STRING)
