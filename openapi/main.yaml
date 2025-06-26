@@ -837,12 +837,15 @@ components:
         trip_date:
           type: string
           format: date
+          example: "YYYY-MM-DD"
         schedule_departure:
           type: string
           format: time
+          example: "HH:mm:ss"
         actual_departure:
           type: string
           format: time
+          example: "HH:mm:ss"
         trip_status:
           type: string
           example: "En cours"
@@ -863,12 +866,15 @@ components:
         trip_date:
           type: string
           format: date
+          example: "YYYY-MM-DD"
         schedule_departure:
           type: string
           format: time
+          example: "HH:mm:ss"
         actual_departure:
           type: string
           format: time
+          example: "HH:mm:ss"
         trip_status:
           type: string
           example: "En cours"
