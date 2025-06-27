@@ -843,9 +843,8 @@ components:
         itinerary_id:
           type: string
           format: uuid
-        route_id:
+        route_name:
           type: string
-          format: uuid
         direction:
           type: string
           enum: [ ALLER, RETOUR ]
