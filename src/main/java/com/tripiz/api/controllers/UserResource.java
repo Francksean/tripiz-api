@@ -1,13 +1,11 @@
 package com.tripiz.api.controllers;
 
-
-import com.tripiz.api.model.SignupRequestDTO;
-import com.tripiz.api.model.SignupResponseDTO;
 import com.tripiz.api.model.UpdateUserRequestDTO;
 import com.tripiz.api.model.UserDTO;
 import com.tripiz.api.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,61 +16,49 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserResource {
 
-    private final UserService accountService;
-
-    @PostMapping("/auth/signupAsClient")
-    public ResponseEntity<SignupResponseDTO> signupAsClient(@RequestBody SignupRequestDTO request) {
-        SignupResponseDTO response = accountService.createClientAccount(request);
-        return ResponseEntity.ok(response);
-    }
-
-    @PostMapping("/admin/auth/signupAsDriver")
-    public ResponseEntity<SignupResponseDTO> signupAsDriver(@RequestBody SignupRequestDTO request) {
-        SignupResponseDTO response = accountService.createDriverAccount(request);
-        return ResponseEntity.ok(response);
-    }
+    private final UserService userService;
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Void> updateUser(@PathVariable UUID id, @RequestBody UpdateUserRequestDTO updateUserRequestDTO) {
-        accountService.updateAccount(id, updateUserRequestDTO);
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<Void> updateUser(@PathVariable UUID id, @RequestBody UpdateUserRequestDTO dto) {
+        userService.updateAccount(id, dto);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
-        accountService.deleteUser(id);
+        userService.deleteUser(id);
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/admin/getAllUsers")
+    @GetMapping("/admin/users")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<List<UserDTO>> getAllUsers() {
-        List<UserDTO> user = accountService.getAllUsers();
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(userService.getAllUsers());
     }
 
     @GetMapping("/admin/countOnline")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Integer> countOnlineUsers() {
-        int count = accountService.countOnlineUsers();
-        return ResponseEntity.ok(count);
+        return ResponseEntity.ok(userService.countOnlineUsers());
     }
 
     @GetMapping("/admin/countBlocked")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Integer> countBlockedUsers() {
-        int count = accountService.countBlockedUsers();
-        return ResponseEntity.ok(count);
+        return ResponseEntity.ok(userService.countBlockedUsers());
     }
 
     @GetMapping("/admin/countTotalUsers")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Long> countTotalUsers() {
-        long count = accountService.countTotalUsers();
-        return ResponseEntity.ok(count);
+        return ResponseEntity.ok(userService.countTotalUsers());
     }
 
-    @GetMapping("/admin/countUsersCreatedThisMonth")
+    @GetMapping("/admin/countCreatedThisMonth")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Long> countUsersCreatedThisMonth() {
-        long count = accountService.countUsersCreatedThisMonth();
-        return ResponseEntity.ok(count);
+        return ResponseEntity.ok(userService.countUsersCreatedThisMonth());
     }
-
-
 }

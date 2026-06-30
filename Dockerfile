@@ -1,36 +1,28 @@
-# Étape 1 : Build de l'application
-FROM eclipse-temurin:21-jdk-alpine AS build
-
-# Installer les outils nécessaires (curl, bash, etc.)
-RUN apk add --no-cache bash curl unzip
-
-# Crée l'utilisateur spring
-RUN addgroup -S spring && adduser -S spring -G spring
-
+# Étape de build
+FROM eclipse-temurin:21-jdk AS build
 WORKDIR /app
 
-# Copier les fichiers du projet
-COPY . .
+# Copier les fichiers Gradle
+COPY gradlew .
+COPY gradle gradle
+COPY build.gradle settings.gradle ./
 
-# Donner les droits d'exécution à Gradle wrapper s'il est présent
-RUN chmod +x ./gradlew
+# Rendre gradlew exécutable
+RUN chmod +x gradlew
 
-# Build de l'application sans les tests
-RUN ./gradlew clean build -x test -x check --no-daemon
+# Télécharger les dépendances
+RUN ./gradlew dependencies --no-daemon
 
-# Étape 2 : Image finale allégée
-FROM eclipse-temurin:21-jre-alpine
+# Copier le code source et les fichiers OpenAPI (si présent)
+COPY src src
+COPY openapi openapi
 
-# Créer l'utilisateur spring
-RUN addgroup -S spring && adduser -S spring -G spring
-USER spring:spring
+# Construire le JAR
+RUN ./gradlew bootJar --no-daemon
 
+# Étape finale
+FROM eclipse-temurin:21-jdk
 WORKDIR /app
-
-# Copier le jar compilé depuis le build stage
 COPY --from=build /app/build/libs/*.jar app.jar
-
 EXPOSE 8080
-
-ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75"
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /app/app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]

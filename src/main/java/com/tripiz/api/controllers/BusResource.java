@@ -8,6 +8,7 @@ import com.tripiz.api.model.UpdateBusRequestDTO;
 import com.tripiz.api.service.BusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,24 +28,28 @@ public class BusResource {
     }
 
     @GetMapping("/admin/buses")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<List<BusDTO>> getAllBus() {
         List<BusDTO> user = busService.getAllBus();
         return ResponseEntity.ok(user);
     }
 
     @GetMapping("/admin/countInServiceBus")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Integer> countInServiceBus() {
         int count = busService.countInServiceBus();
         return ResponseEntity.ok(count);
     }
 
     @GetMapping("/admin/countInMaintenanceBus")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Integer> countInMaintenanceBus() {
         int count = busService.countInMaintenanceBus();
         return ResponseEntity.ok(count);
     }
 
     @GetMapping("/admin/totalCapacity")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Integer> getTotalCapacity() {
         return ResponseEntity.ok(busService.countTotalCapacity());
     }

@@ -1,0 +1,65 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: tripiz-postgres
+    environment:
+      POSTGRES_DB: tripizdb
+      POSTGRES_USER: tripiz
+      POSTGRES_PASSWORD: tripiz123
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tripiz -d tripizdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.5
+    container_name: tripiz-keycloak
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres/tripizdb
+      KC_DB_USERNAME: tripiz
+      KC_DB_PASSWORD: tripiz123
+      KC_HOSTNAME: keycloak
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HEALTH_ENABLED: true
+      KC_METRICS_ENABLED: true
+    ports:
+      - "8080:8080"
+    command: start-dev
+    healthcheck:
+      test: [ "CMD-SHELL", "bash -c 'echo > /dev/tcp/localhost/8080' || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  backend:
+    build: .
+    container_name: tripiz-backend
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/tripizdb
+      SPRING_DATASOURCE_USERNAME: tripiz
+      SPRING_DATASOURCE_PASSWORD: tripiz123
+      KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/tripiz
+      KEYCLOAK_JWK_SET_URI: http://keycloak:8080/realms/tripiz/protocol/openid-connect/certs
+    ports:
+      - "8081:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

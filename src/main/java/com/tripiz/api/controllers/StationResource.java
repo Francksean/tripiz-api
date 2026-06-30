@@ -9,6 +9,7 @@ import com.tripiz.api.service.StationService;
 import com.tripiz.api.service.mapper.StationMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,12 +31,14 @@ public class StationResource {
     }
 
     @GetMapping("/admin/stations")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<List<StationDTO>> getAllStations() {
         List<StationDTO> station = stationService.getAllStations();
         return ResponseEntity.ok(station);
     }
 
     @PatchMapping("/admin/{id}")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Void> updateStation(@PathVariable UUID id, @RequestBody CreateStationRequestDTO request) {
         stationService.updateStation(id, request);
         return ResponseEntity.ok().build();
@@ -48,18 +51,21 @@ public class StationResource {
     }
 
     @GetMapping("/admin/countInServiceStation")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Integer> countInServiceStation() {
         int count = stationService.countInServiceStation();
         return ResponseEntity.ok(count);
     }
 
     @GetMapping("/admin/countInMaintenanceStation")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Integer> countInMaintenanceStation() {
         int count = stationService.countInMaintenanceStation();
         return ResponseEntity.ok(count);
     }
 
     @GetMapping("/admin/countAllStations")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Integer> countAllStations() {
         int count = stationService.countAllStations();
         return ResponseEntity.ok(count);
