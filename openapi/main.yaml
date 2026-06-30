@@ -8,8 +8,10 @@ servers:
     description: "Local server"
 
 tags:
+  - name: "Authentication"
+    description: "Authentication and user registration"
   - name: "User"
-    description: "Operations on users"
+    description: "Operations on users (admin only)"
   - name: "Bus"
     description: "Operations on bus"
   - name: "Station"
@@ -20,13 +22,13 @@ tags:
     description: "Operations on trips"
 
 paths:
-  /user/auth/signupAsClient:
+  /auth/register:
     post:
       tags:
-        - "User"
-      summary: "Create a client account"
-      description: "Create an endpoint for signing up as a client"
-      operationId: signupAsClient
+        - "Authentication"
+      summary: "Register a new client account"
+      description: "Public endpoint for client sign-up"
+      operationId: registerClient
       requestBody:
         required: true
         content:
@@ -34,21 +36,26 @@ paths:
             schema:
               $ref: '#/components/schemas/SignupRequestDTO'
       responses:
-        '200':
-          description: Success
+        '201':
+          description: "User registered successfully"
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/SignupResponseDTO'
         '400':
-          description: Bad Request
-  /user/admin/auth/signupAsDriver:
+          description: "Invalid input or email already exists"
+        '500':
+          description: "Server error"
+
+  /auth/register/driver:
     post:
       tags:
-        - "User"
-      summary: "Create a driver account"
-      description: "Create an endpoint for signing up as a driver"
-      operationId: signupAsDriver
+        - "Authentication"
+      summary: "Register a new driver account"
+      description: "Admin-only endpoint for driver registration"
+      operationId: registerDriver
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -56,27 +63,38 @@ paths:
             schema:
               $ref: '#/components/schemas/SignupRequestDTO'
       responses:
-        '200':
-          description: Success
+        '201':
+          description: "Driver registered successfully"
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/SignupResponseDTO'
         '400':
-          description: Bad Request
+          description: "Invalid input or email already exists"
+        '401':
+          description: "Unauthorized (missing or invalid token)"
+        '403':
+          description: "Forbidden (insufficient privileges)"
+        '500':
+          description: "Server error"
+
   /user/{id}:
     patch:
       tags:
         - "User"
-      description: "Create an endpoint for updating a user"
+      summary: "Update a user"
+      description: "Update user details by ID (admin only)"
       operationId: updateUser
+      security:
+        - bearerAuth: []
       parameters:
         - name: id
           in: path
           required: true
-          description: "The id of the user to update"
+          description: "User ID"
           schema:
             type: string
+            format: uuid
       requestBody:
         required: true
         content:
@@ -86,80 +104,117 @@ paths:
       responses:
         '200':
           description: "User updated successfully"
+        '400':
+          description: "Invalid input"
+        '401':
+          description: "Unauthorized"
+        '403':
+          description: "Forbidden"
         '404':
-          description: Not found
+          description: "User not found"
+
   /user/delete/{id}:
     delete:
       tags:
         - "User"
-      description: "Delete a user"
+      summary: "Delete a user"
+      description: "Delete a user by ID (admin only)"
       operationId: deleteUser
+      security:
+        - bearerAuth: []
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: string
+            format: uuid
       responses:
         '200':
           description: "User deleted successfully"
+        '401':
+          description: "Unauthorized"
+        '403':
+          description: "Forbidden"
         '404':
-          description: "Not Found"
-  /user/admin/getAllUsers:
+          description: "User not found"
+
+  /user/admin/users:
     get:
       tags:
         - "User"
-      description: "Get all users"
+      summary: "Get all users"
+      description: "Retrieve list of all users (admin only)"
       operationId: getAllUsers
+      security:
+        - bearerAuth: []
       responses:
         '200':
-          description: Success
+          description: "Success"
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/UserDTO'
-        '404':
-          description: Not found
+        '401':
+          description: "Unauthorized"
+        '403':
+          description: "Forbidden"
+
   /user/admin/countOnline:
     get:
       tags:
         - "User"
-      description: "Count the number of online users"
-      operationId: countOnline
+      summary: "Count online users"
+      description: "Get number of users with status ONLINE (admin only)"
+      operationId: countOnlineUsers
+      security:
+        - bearerAuth: []
       responses:
         '200':
-          description: "Number of online users"
+          description: "Count of online users"
           content:
             application/json:
               schema:
                 type: integer
                 format: int32
-        '404':
-          description: "Not Found"
+        '401':
+          description: "Unauthorized"
+        '403':
+          description: "Forbidden"
+
   /user/admin/countBlocked:
     get:
       tags:
         - "User"
-      description: "Count the number of blocked users"
-      operationId: countBlocked
+      summary: "Count blocked users"
+      description: "Get number of users with status BLOCKED (admin only)"
+      operationId: countBlockedUsers
+      security:
+        - bearerAuth: []
       responses:
         '200':
-          description: "Number of blocked users"
+          description: "Count of blocked users"
           content:
             application/json:
               schema:
                 type: integer
                 format: int32
-        '404':
-          description: "Not Found"
+        '401':
+          description: "Unauthorized"
+        '403':
+          description: "Forbidden"
+
   /user/admin/countTotalUsers:
     get:
       tags:
         - "User"
-      description: "Count the total number of users"
+      summary: "Count total users"
+      description: "Get total number of registered users (admin only)"
       operationId: countTotalUsers
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: "Total number of users"
@@ -168,31 +223,42 @@ paths:
               schema:
                 type: integer
                 format: int64
-        '404':
-          description: "Not Found"
-  /user/admin/countUsersCreatedThisMonth:
+        '401':
+          description: "Unauthorized"
+        '403':
+          description: "Forbidden"
+
+  /user/admin/countCreatedThisMonth:
     get:
       tags:
         - "User"
-      description: "Count the number of users created in a month"
+      summary: "Count users created this month"
+      description: "Get number of users registered in the current month (admin only)"
       operationId: countUsersCreatedThisMonth
+      security:
+        - bearerAuth: []
       responses:
         '200':
-          description: "Number of users created in a month"
+          description: "Count of users created this month"
           content:
             application/json:
               schema:
                 type: integer
                 format: int64
-        '404':
-          description: "Not Found"
+        '401':
+          description: "Unauthorized"
+        '403':
+          description: "Forbidden"
+
   /bus/createBus:
     post:
       tags:
         - "Bus"
       summary: "Create a new bus"
-      description: "Create an endpoint for registering a new bus"
+      description: "Register a new bus (admin only)"
       operationId: createBus
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -201,36 +267,50 @@ paths:
               $ref: '#/components/schemas/CreateBusRequestDTO'
       responses:
         '200':
-          description: Success
+          description: "Success"
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/CreateBusResponseDTO'
         '400':
-          description: Bad Request
+          description: "Bad Request"
+        '401':
+          description: "Unauthorized"
+        '403':
+          description: "Forbidden"
+
   /bus/admin/buses:
     get:
       tags:
         - "Bus"
-      description: "Get all bus"
-      operationId: getAllBus
+      summary: "Get all buses"
+      description: "Retrieve list of all buses (admin only)"
+      operationId: getAllBuses
+      security:
+        - bearerAuth: []
       responses:
         '200':
-          description: Success
+          description: "Success"
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/BusDTO'
-        '404':
-          description: Not found
+        '401':
+          description: "Unauthorized"
+        '403':
+          description: "Forbidden"
+
   /bus/admin/countInServiceBus:
     get:
       tags:
         - "Bus"
-      description: "Count the number of bus in service"
+      summary: "Count buses in service"
+      description: "Get number of buses with status 'En service' (admin only)"
       operationId: countInServiceBus
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: "Success"
@@ -239,14 +319,20 @@ paths:
               schema:
                 type: integer
                 format: int32
-        '404':
-          description: "Not Found"
+        '401':
+          description: "Unauthorized"
+        '403':
+          description: "Forbidden"
+
   /bus/admin/countInMaintenanceBus:
     get:
       tags:
         - "Bus"
-      description: "Count the number of bus in maintenance"
+      summary: "Count buses in maintenance"
+      description: "Get number of buses with status 'En maintenance' (admin only)"
       operationId: countInMaintenanceBus
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: "Success"
@@ -255,14 +341,20 @@ paths:
               schema:
                 type: integer
                 format: int32
-        '404':
-          description: "Not Found"
+        '401':
+          description: "Unauthorized"
+        '403':
+          description: "Forbidden"
+
   /bus/admin/totalCapacity:
     get:
       tags:
         - "Bus"
-      description: "Get the total capacity of bus in service"
+      summary: "Total capacity of buses in service"
+      description: "Sum of capacities of all buses in service (admin only)"
       operationId: getTotalCapacity
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: "Success"
@@ -271,38 +363,53 @@ paths:
               schema:
                 type: integer
                 format: int32
-        '404':
-          description: "Not Found"
+        '401':
+          description: "Unauthorized"
+        '403':
+          description: "Forbidden"
+
   /bus/delete/{id}:
     delete:
       tags:
         - "Bus"
-      description: "Delete a bus"
+      summary: "Delete a bus"
+      description: "Delete a bus by ID (admin only)"
       operationId: deleteBus
+      security:
+        - bearerAuth: []
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: string
+            format: uuid
       responses:
         '200':
           description: "Bus deleted successfully"
+        '401':
+          description: "Unauthorized"
+        '403':
+          description: "Forbidden"
         '404':
           description: "Not Found"
+
   /bus/{id}:
     patch:
       tags:
         - "Bus"
-      description: "Create an endpoint for updating a bus"
+      summary: "Update a bus"
+      description: "Update bus details by ID (admin only)"
       operationId: updateBus
+      security:
+        - bearerAuth: []
       parameters:
         - name: id
           in: path
           required: true
-          description: "The id of the bus to update"
           schema:
             type: string
+            format: uuid
       requestBody:
         required: true
         content:
@@ -312,15 +419,24 @@ paths:
       responses:
         '200':
           description: "Bus updated successfully"
+        '400':
+          description: "Invalid input"
+        '401':
+          description: "Unauthorized"
+        '403':
+          description: "Forbidden"
         '404':
-          description: Not found
+          description: "Not found"
+
   /station/createStation:
     post:
       tags:
         - "Station"
-      summary: "Create a new Station"
-      description: "Create an endpoint for registering a new station"
+      summary: "Create a new station"
+      description: "Register a new station (admin only)"
       operationId: createStation
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -329,39 +445,53 @@ paths:
               $ref: '#/components/schemas/CreateStationRequestDTO'
       responses:
         '200':
-          description: Success
+          description: "Success"
         '400':
-          description: Bad Request
+          description: "Bad Request"
+        '401':
+          description: "Unauthorized"
+        '403':
+          description: "Forbidden"
+
   /station/admin/stations:
     get:
       tags:
         - "Station"
-      description: "Get all stations"
+      summary: "Get all stations"
+      description: "Retrieve list of all stations (admin only)"
       operationId: getAllStations
+      security:
+        - bearerAuth: []
       responses:
         '200':
-          description: Success
+          description: "Success"
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/StationDTO'
-        '404':
-          description: Not found
+        '401':
+          description: "Unauthorized"
+        '403':
+          description: "Forbidden"
+
   /station/admin/{id}:
     patch:
       tags:
         - "Station"
-      description: "Create an endpoint for updating a station"
+      summary: "Update a station"
+      description: "Update station details by ID (admin only)"
       operationId: updateStation
+      security:
+        - bearerAuth: []
       parameters:
         - name: id
           in: path
           required: true
-          description: "The id of the station to update"
           schema:
             type: string
+            format: uuid
       requestBody:
         required: true
         content:
@@ -370,32 +500,51 @@ paths:
               $ref: '#/components/schemas/CreateStationRequestDTO'
       responses:
         '200':
-          description: "Bus updated successfully"
+          description: "Station updated successfully"
+        '400':
+          description: "Invalid input"
+        '401':
+          description: "Unauthorized"
+        '403':
+          description: "Forbidden"
         '404':
-          description: Not found
+          description: "Not found"
+
   /station/delete/{id}:
     delete:
       tags:
         - "Station"
-      description: "Delete a station"
+      summary: "Delete a station"
+      description: "Delete a station by ID (admin only)"
       operationId: deleteStation
+      security:
+        - bearerAuth: []
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: string
+            format: uuid
       responses:
         '200':
           description: "Station deleted successfully"
+        '401':
+          description: "Unauthorized"
+        '403':
+          description: "Forbidden"
         '404':
           description: "Not Found"
+
   /station/admin/countInServiceStation:
     get:
       tags:
         - "Station"
-      description: "Count the number of station in service"
+      summary: "Count stations in service"
+      description: "Get number of stations with status 'En service' (admin only)"
       operationId: countInServiceStation
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: "Success"
@@ -404,14 +553,20 @@ paths:
               schema:
                 type: integer
                 format: int32
-        '404':
-          description: "Not Found"
+        '401':
+          description: "Unauthorized"
+        '403':
+          description: "Forbidden"
+
   /station/admin/countInMaintenanceStation:
     get:
       tags:
         - "Station"
-      description: "Count the number of station in maintenance"
+      summary: "Count stations in maintenance"
+      description: "Get number of stations with status 'En maintenance' (admin only)"
       operationId: countInMaintenanceStation
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: "Success"
@@ -420,14 +575,20 @@ paths:
               schema:
                 type: integer
                 format: int32
-        '404':
-          description: "Not Found"
+        '401':
+          description: "Unauthorized"
+        '403':
+          description: "Forbidden"
+
   /station/admin/countAllStations:
     get:
       tags:
         - "Station"
-      description: "Count the total number of stations"
+      summary: "Count total stations"
+      description: "Get total number of stations (admin only)"
       operationId: countAllStations
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: "Success"
@@ -436,41 +597,20 @@ paths:
               schema:
                 type: integer
                 format: int32
-        '404':
-          description: "Not Found"
-  /station/getStations/within-square:
-    post:
-      tags:
-        - "Station"
-      summary: "Get stations within square bounds"
-      description: "Retrieve all stations within a geographical square"
-      operationId: getStationsWithinSquare
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/GetStationsRequestDTO'
-      responses:
-        '200':
-          description: "List of stations within the specified bounds"
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/StationDTO'
-        '400':
-          description: Invalid input
-        '500':
-          description: Server error
+        '401':
+          description: "Unauthorized"
+        '403':
+          description: "Forbidden"
+
   /itinerary/admin/createItinerary:
     post:
       tags:
         - "Itinerary"
-      summary: "Create a new Itinerary"
-      description: "Create an endpoint for registering a new itinerary"
+      summary: "Create a new itinerary"
+      description: "Register a new itinerary (admin only)"
       operationId: createItinerary
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -479,15 +619,20 @@ paths:
               $ref: '#/components/schemas/CreateItineraryRequestDTO'
       responses:
         '200':
-          description: Success
+          description: "Success"
         '400':
-          description: Bad Request
+          description: "Bad Request"
+        '401':
+          description: "Unauthorized"
+        '403':
+          description: "Forbidden"
+
   /itinerary/{id}:
     get:
       tags:
         - "Itinerary"
       summary: "Get itinerary by ID"
-      description: "Retrieve a single itinerary using its unique identifier"
+      description: "Retrieve a single itinerary by its UUID"
       operationId: getItineraryById
       parameters:
         - name: id
@@ -504,14 +649,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/ItineraryResponseDTO'
         '404':
-          description: "Itinerary not found"
+          description: "Not found"
+
   /itinerary/getStation/{id}:
     get:
       tags:
         - "Itinerary"
       summary: "Get itinerary by station ID"
-      description: "Retrieve an itinerary using a station identifier"
-      operationId: getItinerariesByDepartureStation
+      description: "Retrieve itinerary associated with a station"
+      operationId: getItinerariesByStation
       parameters:
         - name: id
           in: path
@@ -527,54 +673,73 @@ paths:
               schema:
                 $ref: '#/components/schemas/ItineraryResponseDTO'
         '404':
-          description: "Itinerary not found"
+          description: "Not found"
+
   /itinerary/admin/getAll:
     get:
       tags:
         - "Itinerary"
-      description: "Get all itineraries"
+      summary: "Get all itineraries"
+      description: "Retrieve list of all itineraries (admin only)"
       operationId: getAllItineraries
+      security:
+        - bearerAuth: []
       responses:
         '200':
-          description: Success
+          description: "Success"
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/ItineraryResponseDTO'
-        '404':
-          description: Not found
+        '401':
+          description: "Unauthorized"
+        '403':
+          description: "Forbidden"
+
   /itinerary/admin/delete/{id}:
     delete:
       tags:
         - "Itinerary"
-      description: "Delete an itinerary"
+      summary: "Delete an itinerary"
+      description: "Delete an itinerary by ID (admin only)"
       operationId: deleteItinerary
+      security:
+        - bearerAuth: []
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: string
+            format: uuid
       responses:
         '200':
           description: "Itinerary deleted successfully"
+        '401':
+          description: "Unauthorized"
+        '403':
+          description: "Forbidden"
         '404':
           description: "Not Found"
+
   /itinerary/admin/{id}:
     patch:
       tags:
         - "Itinerary"
-      description: "Create an endpoint for updating an itinerary"
+      summary: "Update an itinerary"
+      description: "Update itinerary details by ID (admin only)"
       operationId: updateItinerary
+      security:
+        - bearerAuth: []
       parameters:
         - name: id
           in: path
           required: true
-          description: "The id of the itinerary to update"
           schema:
             type: string
+            format: uuid
       requestBody:
         required: true
         content:
@@ -584,15 +749,24 @@ paths:
       responses:
         '200':
           description: "Itinerary updated successfully"
+        '400':
+          description: "Invalid input"
+        '401':
+          description: "Unauthorized"
+        '403':
+          description: "Forbidden"
         '404':
-          description: Not found
+          description: "Not found"
+
   /trip/createTrip:
     post:
       tags:
         - "Trip"
-      summary: "Create a new Trip"
-      description: "Create an endpoint for registering a new trip"
+      summary: "Create a new trip"
+      description: "Register a new trip (admin or driver)"
       operationId: createTrip
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -601,16 +775,33 @@ paths:
               $ref: '#/components/schemas/CreateTripRequestDTO'
       responses:
         '200':
-          description: Success
+          description: "Success"
         '400':
-          description: Bad Request
+          description: "Bad Request"
+        '401':
+          description: "Unauthorized"
+        '403':
+          description: "Forbidden"
+
   /trip/getTripsByDriver:
     post:
       tags:
         - "Trip"
-      summary: "Get trips by the Driver id"
-      description: "Retrieve all trips conducted by a specific driver using its id"
+      summary: "Get trips by driver ID"
+      description: "Retrieve all trips for a specific driver"
       operationId: getTripsByDriverId
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                driverId:
+                  type: string
+                  format: uuid
       responses:
         '200':
           description: "Success"
@@ -620,28 +811,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/TripDTO'
+        '401':
+          description: "Unauthorized"
+        '403':
+          description: "Forbidden"
         '404':
           description: "Not found"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 components:
   securitySchemes:
@@ -649,88 +824,92 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+
   schemas:
+    # ----- Authentication -----
     SignupRequestDTO:
       type: object
       required:
         - email
         - password
       properties:
-        password:
-          type: string
-          example: "password1234"
         email:
           type: string
           format: email
-          example: "user@entreprise.com"
+          example: "user@example.com"
+        password:
+          type: string
+          example: "Password123"
+          minLength: 8
+        firstName:
+          type: string
+          example: "John"
+        lastName:
+          type: string
+          example: "Doe"
+        phone:
+          type: string
+          example: "0123456789"
+
     SignupResponseDTO:
       type: object
       properties:
-        user_id:
+        userId:
           type: string
           format: uuid
+        email:
+          type: string
         role:
           type: string
+          example: "client"
+
+    # ----- User -----
     UpdateUserRequestDTO:
       type: object
       properties:
         email:
           type: string
-        first_name:
+          format: email
+        firstName:
           type: string
-        last_name:
+        lastName:
           type: string
         phone:
-          type: integer
+          type: string
+        status:
+          type: string
+          example: "ONLINE"
+
     UserDTO:
       type: object
       properties:
-        user_id:
+        userId:
           type: string
           format: uuid
         email:
           type: string
-        first_name:
+        firstName:
           type: string
-        last_name:
+        lastName:
           type: string
         phone:
-          type: integer
+          type: string
         status:
           type: string
         role:
           type: string
-        created_at:
+        createdAt:
           type: string
-    RechargeRequestDTO:
-      type: object
-      properties:
-        walletId:
-          type: string
-          format: UUID
-        amount:
-          type: string
-          format: double
-        phone:
-          type: string
-        channel:
-          type: string
-    PaymentRequestDTO:
-      type: object
-      properties:
-        walletId:
-          type: string
-          format: UUID
-        amount:
-          type: string
-          format: double
-        phone:
-          type: string
-        tripId:
-          type: string
-          format: UUID
+          format: date-time
+
+    # ----- Bus -----
     CreateBusRequestDTO:
       type: object
+      required:
+        - busNumber
+        - matriculation
+        - capacity
+        - status
       properties:
         busNumber:
           type: integer
@@ -740,12 +919,15 @@ components:
           type: integer
         status:
           type: string
+          example: "En service"
+
     CreateBusResponseDTO:
       type: object
       properties:
         busId:
           type: string
           format: uuid
+
     BusDTO:
       type: object
       properties:
@@ -754,29 +936,33 @@ components:
           format: uuid
         busNumber:
           type: integer
-          format: int32
         matriculation:
           type: string
         capacity:
           type: integer
-          format: int32
         status:
           type: string
-          example: "En service"
+
     UpdateBusRequestDTO:
       type: object
       properties:
         busNumber:
           type: integer
-          format: int32
         matriculation:
           type: string
         capacity:
           type: integer
         status:
           type: string
+
+    # ----- Station -----
     CreateStationRequestDTO:
       type: object
+      required:
+        - stationName
+        - address
+        - latitude
+        - longitude
       properties:
         stationName:
           type: string
@@ -792,6 +978,7 @@ components:
         longitude:
           type: number
           format: double
+
     StationDTO:
       type: object
       properties:
@@ -800,24 +987,27 @@ components:
           format: uuid
         stationName:
           type: string
-          example: "Marché Central"
         address:
           type: string
-          example: "Boulevard de la liberté, Douala"
         stationType:
           type: string
-          example: "INTERMEDIATE"
         status:
           type: string
-          example: "ACTIVE"
         latitude:
           type: number
           format: double
         longitude:
           type: number
           format: double
+
+    # ----- Itinerary -----
     CreateItineraryRequestDTO:
       type: object
+      required:
+        - route_name
+        - direction
+        - departure_station
+        - arrival_station
       properties:
         route_name:
           type: string
@@ -837,6 +1027,7 @@ components:
         distance:
           type: number
           format: double
+
     ItineraryResponseDTO:
       type: object
       properties:
@@ -847,7 +1038,6 @@ components:
           type: string
         direction:
           type: string
-          enum: [ ALLER, RETOUR ]
         itinerary_name:
           type: string
         estimated_duration:
@@ -861,21 +1051,44 @@ components:
         distance:
           type: number
           format: double
-    GetStationsRequestDTO:
+
+    # ----- Trip -----
+    CreateTripRequestDTO:
       type: object
+      required:
+        - bus_id
+        - driver_id
+        - itinerary_id
+        - trip_date
+        - schedule_departure
       properties:
-        minLat:
-          type: number
-          format: double
-        maxLat:
-          type: number
-          format: double
-        minLng:
-          type: number
-          format: double
-        maxLng:
-          type: number
-          format: double
+        bus_id:
+          type: string
+          format: uuid
+        driver_id:
+          type: string
+          format: uuid
+        itinerary_id:
+          type: string
+          format: uuid
+        trip_date:
+          type: string
+          format: date
+          example: "2026-06-30"
+        schedule_departure:
+          type: string
+          format: time
+          example: "08:00:00"
+        actual_departure:
+          type: string
+          format: time
+          example: "08:05:00"
+        trip_status:
+          type: string
+          example: "En cours"
+        passenger_count:
+          type: integer
+
     TripDTO:
       type: object
       properties:
@@ -894,50 +1107,13 @@ components:
         trip_date:
           type: string
           format: date
-          example: "YYYY-MM-DD"
         schedule_departure:
           type: string
           format: time
-          example: "HH:mm:ss"
         actual_departure:
           type: string
           format: time
-          example: "HH:mm:ss"
         trip_status:
           type: string
-          example: "En cours"
         passenger_count:
           type: integer
-    CreateTripRequestDTO:
-      type: object
-      properties:
-        bus_id:
-          type: string
-          format: uuid
-        driver_id:
-          type: string
-          format: uuid
-        itinerary_id:
-          type: string
-          format: uuid
-        trip_date:
-          type: string
-          format: date
-          example: "YYYY-MM-DD"
-        schedule_departure:
-          type: string
-          format: time
-          example: "HH:mm:ss"
-        actual_departure:
-          type: string
-          format: time
-          example: "HH:mm:ss"
-        trip_status:
-          type: string
-          example: "En cours"
-
-
-
-
-
-
