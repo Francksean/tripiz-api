@@ -900,7 +900,6 @@ components:
           type: string
         createdAt:
           type: string
-          format: date-time
 
     # ----- Bus -----
     CreateBusRequestDTO:
