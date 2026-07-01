@@ -2,6 +2,7 @@ package com.tripiz.api.configurations;
 
 import com.tripiz.api.domain.BusPosition;
 import com.tripiz.api.domain.PositionMessageType;
+import com.tripiz.api.service.BusPositionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -19,6 +20,7 @@ import java.util.UUID;
 public class WebSocketEventListener {
 
     private final SimpMessageSendingOperations messagingTemplate;
+    private final BusPositionService busPositionService;
 
     @EventListener
     public void handleWebSocketConnectListener(SessionConnectedEvent event) {
@@ -27,11 +29,21 @@ public class WebSocketEventListener {
 
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
-        StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
+
+        StompHeaderAccessor headerAccessor =
+                StompHeaderAccessor.wrap(event.getMessage());
+
+        if (headerAccessor.getSessionAttributes() == null) {
+            return;
+        }
+
         UUID busId = (UUID) headerAccessor.getSessionAttributes().get("busId");
 
         if (busId != null) {
+
             log.info("Bus disconnected: {}", busId);
+
+            busPositionService.removePosition(busId);
 
             BusPosition position = BusPosition.builder()
                     .busId(busId)
@@ -42,4 +54,3 @@ public class WebSocketEventListener {
         }
     }
 }
-
