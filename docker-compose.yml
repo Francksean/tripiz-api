@@ -31,9 +31,13 @@ services:
       KC_METRICS_ENABLED: true
     ports:
       - "8080:8080"
-    command: start-dev
+    # 👇 Ajout de l'option d'import
+    command: start-dev --import-realm
+    # 👇 Montage du fichier de configuration
+    volumes:
+      - ./tripiz-realm.json:/opt/keycloak/data/import/realm.json
     healthcheck:
-      test: [ "CMD-SHELL", "bash -c 'echo > /dev/tcp/localhost/8080' || exit 1" ]
+      test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/localhost/8080' || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 10
