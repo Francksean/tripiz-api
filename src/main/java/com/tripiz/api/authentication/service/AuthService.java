@@ -80,7 +80,7 @@ public class AuthService {
                 .email(request.getEmail())
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
-                .phone(request.getPhone() != null ? Integer.valueOf(request.getPhone()) : null)
+                .phone(request.getPhone())
                 .role("driver")
                 .status("ONLINE")
                 .createdAt(LocalDateTime.now())
