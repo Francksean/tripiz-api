@@ -61,4 +61,10 @@ public class UserResource {
     public ResponseEntity<Long> countUsersCreatedThisMonth() {
         return ResponseEntity.ok(userService.countUsersCreatedThisMonth());
     }
+
+    @GetMapping("/admin/drivers")
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<List<UserDTO>> getDrivers() {
+        return ResponseEntity.ok(userService.getDrivers());
+    }
 }

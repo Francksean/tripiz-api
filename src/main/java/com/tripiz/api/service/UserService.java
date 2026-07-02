@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +28,11 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         userMapper.updateUserFromDto(dto, user);
         userRepository.save(user);
+    }
+
+    public List<UserDTO> getDrivers() {
+        List<User> drivers = userRepository.findByRole("driver");
+        return drivers.stream().map(userMapper::toUserDTO).collect(Collectors.toList());
     }
 
     @Transactional
