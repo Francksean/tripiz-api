@@ -28,27 +28,33 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final KeycloakUserService keycloakUserService;
 
     @Transactional
     public RegisterResponse registerClient(RegisterRequest request) {
+        // Vérifier si l'email existe déjà en local
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email already exists");
         }
 
-        String password = request.getPassword();
-        if (!password.matches("^(?=.*\\d)[A-Za-z\\d]{8,}$")) {
-            throw new IllegalArgumentException("Password must be at least 8 characters and contain at least one digit");
-        }
+        // Créer l'utilisateur dans Keycloak
+        String keycloakId = keycloakUserService.createUser(
+                request.getEmail(),
+                request.getPassword(),
+                request.getFirstName(),
+                request.getLastName()
+        );
 
+        // Créer l'utilisateur local avec l'ID Keycloak
         User user = User.builder()
+                .keycloakId(keycloakId)
                 .email(request.getEmail())
-                .password(passwordEncoder.encode(password)) // encodage BCrypt
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .phone(request.getPhone() != null ? Integer.valueOf(request.getPhone()) : null)
-                .createdAt(LocalDateTime.now())
                 .role("client")
                 .status("ONLINE")
+                .createdAt(LocalDateTime.now())
                 .build();
 
         User saved = userRepository.save(user);
@@ -57,25 +63,27 @@ public class AuthService {
 
     @Transactional
     public RegisterResponse registerDriver(RegisterRequest request) {
-        // Similaire, mais avec le rôle "driver" (accessible uniquement via un endpoint admin)
+        // Similaire, mais avec le rôle "driver"
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email already exists");
         }
 
-        String password = request.getPassword();
-        if (!password.matches("^(?=.*\\d)[A-Za-z\\d]{8,}$")) {
-            throw new IllegalArgumentException("Invalid password format");
-        }
+        String keycloakId = keycloakUserService.createUser(
+                request.getEmail(),
+                request.getPassword(),
+                request.getFirstName(),
+                request.getLastName()
+        );
 
         User user = User.builder()
+                .keycloakId(keycloakId)
                 .email(request.getEmail())
-                .password(passwordEncoder.encode(password))
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .phone(request.getPhone() != null ? Integer.valueOf(request.getPhone()) : null)
-                .createdAt(LocalDateTime.now())
                 .role("driver")
                 .status("ONLINE")
+                .createdAt(LocalDateTime.now())
                 .build();
 
         User saved = userRepository.save(user);

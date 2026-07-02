@@ -1,7 +1,5 @@
 package com.tripiz.api.domain;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.tripiz.api.wallet.domain.Wallet;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,6 +21,9 @@ public class User {
     @Column(name = "user_id")
     private UUID userId;
 
+    @Column(name = "keycloak_id", unique = true)  // ← nouveau champ
+    private String keycloakId;
+
     @Column(name = "first_name")
     private String firstName;
 
@@ -42,7 +43,7 @@ public class User {
     private String status;
 
     @Column(name = "password")
-    private String password;
+    private String password; // peut rester, mais on ne l'utilise plus pour l'authentification
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -50,11 +51,4 @@ public class User {
     @Column(name = "role")
     @Builder.Default
     private String role = "client";
-
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    @JsonManagedReference // Permet la sérialisation de Wallet
-    private Wallet wallet;
 }
-
-
-
