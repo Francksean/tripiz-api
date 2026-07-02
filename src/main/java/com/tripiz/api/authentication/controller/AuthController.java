@@ -1,7 +1,9 @@
 package com.tripiz.api.authentication.controller;
 
+import com.tripiz.api.authentication.dto.LoginRequest;
 import com.tripiz.api.authentication.dto.RegisterRequest;
 import com.tripiz.api.authentication.dto.RegisterResponse;
+import com.tripiz.api.authentication.dto.TokenResponse;
 import com.tripiz.api.authentication.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,12 @@ public class AuthController {
     public ResponseEntity<RegisterResponse> register(@Valid @RequestBody RegisterRequest request) {
         RegisterResponse response = authService.registerClient(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest request) {
+        TokenResponse token = authService.login(request);
+        return ResponseEntity.ok(token);
     }
 
     @PostMapping("/register/driver")
