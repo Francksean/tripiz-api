@@ -818,6 +818,53 @@ paths:
         '404':
           description: "Not found"
 
+  /bus/{id}/position:
+    get:
+      tags:
+        - "Bus"
+      summary: "Get current position of a bus"
+      description: "Returns the latest known GPS position of a bus."
+      operationId: getBusPosition
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: "Bus position found"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BusPositionDTO'
+        '404':
+          description: "Bus not connected or position unavailable"
+
+  /bus/positions:
+    get:
+      tags:
+        - "Bus"
+      summary: "Get all connected buses positions"
+      description: "Returns the latest known positions of all connected buses."
+      operationId: getAllBusPositions
+      responses:
+        '200':
+          description: "List of bus positions"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BusPositionDTO'
+
+
+
+
+
+
+
 components:
   securitySchemes:
     bearerAuth:
@@ -926,7 +973,6 @@ components:
         busId:
           type: string
           format: uuid
-
     BusDTO:
       type: object
       properties:
@@ -953,6 +999,29 @@ components:
           type: integer
         status:
           type: string
+    PositionMessageType:
+      type: string
+      enum:
+        - JOIN
+        - UPDATE
+        - LEAVE
+    BusPositionDTO:
+      type: object
+      properties:
+        bus_id:
+          type: string
+          format: uuid
+
+        latitude:
+          type: number
+          format: double
+
+        longitude:
+          type: number
+          format: double
+
+        type:
+          $ref: '#/components/schemas/PositionMessageType'
 
     # ----- Station -----
     CreateStationRequestDTO:
