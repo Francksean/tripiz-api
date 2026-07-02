@@ -51,7 +51,7 @@ public class AuthService {
                 .email(request.getEmail())
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
-                .phone(request.getPhone() != null ? Integer.valueOf(request.getPhone()) : null)
+                .phone(request.getPhone())
                 .role("client")
                 .status("ONLINE")
                 .createdAt(LocalDateTime.now())
@@ -80,7 +80,7 @@ public class AuthService {
                 .email(request.getEmail())
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
-                .phone(request.getPhone() != null ? Integer.valueOf(request.getPhone()) : null)
+                .phone(request.getPhone())
                 .role("driver")
                 .status("ONLINE")
                 .createdAt(LocalDateTime.now())
@@ -91,7 +91,6 @@ public class AuthService {
     }
 
     public TokenResponse login(LoginRequest request) {
-        // Construction du body de la requête (application/x-www-form-urlencoded)
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("client_id", "tripiz-client");
         body.add("username", request.getUsername());
@@ -106,7 +105,6 @@ public class AuthService {
         // Appel à Keycloak
         RestTemplate restTemplate = new RestTemplate();
         String keycloakUrl = "https://keycloak-production-53a7.up.railway.app/realms/tripiz/protocol/openid-connect/token";
-        // ou récupérer l'URL depuis application.properties (ex: keycloak.auth-server-url)
 
         try {
             ResponseEntity<Map> response = restTemplate.postForEntity(keycloakUrl, entity, Map.class);
@@ -120,7 +118,6 @@ public class AuthService {
 
             return tokenResponse;
         } catch (HttpClientErrorException e) {
-            // Gérer les erreurs (mauvais login, etc.)
             throw new RuntimeException("Authentication failed: " + e.getResponseBodyAsString());
         }
     }

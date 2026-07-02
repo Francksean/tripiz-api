@@ -37,7 +37,7 @@ public class User {
     private String profileImage;
 
     @Column(name = "phone")
-    private Integer phone;
+    private String phone;
 
     @Column(name = "status")
     private String status;
