@@ -91,7 +91,6 @@ public class AuthService {
     }
 
     public TokenResponse login(LoginRequest request) {
-        // Construction du body de la requête (application/x-www-form-urlencoded)
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("client_id", "tripiz-client");
         body.add("username", request.getUsername());
