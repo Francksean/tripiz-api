@@ -34,8 +34,8 @@ public class KeycloakUserService {
             Keycloak keycloak = KeycloakBuilder.builder()
                     .serverUrl(authServerUrl)
                     .realm("master")
-                    .clientId(adminClientId)
-                    .clientSecret(adminClientSecret)
+                    .clientId(adminClientId)        // "admin-cli"
+                    .clientSecret(adminClientSecret) // injection via @Value
                     .grantType("client_credentials")
                     .build();
 
@@ -56,18 +56,18 @@ public class KeycloakUserService {
             Response response = keycloak.realm(realm).users().create(userRep);
             if (response.getStatus() != 201) {
                 String error = response.readEntity(String.class);
-                log.error("Erreur Keycloak lors de la création: {}", error);
-                throw new RuntimeException("Échec de la création Keycloak: " + error);
+                log.error("Keycloak error {}: {}", response.getStatus(), error);
+                throw new RuntimeException("Keycloak creation failed: " + error);
             }
 
             String location = response.getHeaderString("Location");
             String keycloakId = location.substring(location.lastIndexOf('/') + 1);
-            log.info("Utilisateur créé dans Keycloak avec ID: {}", keycloakId);
+            log.info("User created in Keycloak with ID: {}", keycloakId);
             return keycloakId;
 
         } catch (Exception e) {
-            log.error("Erreur lors de la communication avec Keycloak", e);
-            throw new RuntimeException("Impossible de créer l'utilisateur dans Keycloak", e);
+            log.error("Exception creating user in Keycloak", e);
+            throw new RuntimeException("Failed to create user in Keycloak", e);
         }
     }
 }
