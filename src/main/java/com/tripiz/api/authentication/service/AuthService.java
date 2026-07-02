@@ -105,7 +105,6 @@ public class AuthService {
         // Appel à Keycloak
         RestTemplate restTemplate = new RestTemplate();
         String keycloakUrl = "https://keycloak-production-53a7.up.railway.app/realms/tripiz/protocol/openid-connect/token";
-        // ou récupérer l'URL depuis application.properties (ex: keycloak.auth-server-url)
 
         try {
             ResponseEntity<Map> response = restTemplate.postForEntity(keycloakUrl, entity, Map.class);
@@ -119,7 +118,6 @@ public class AuthService {
 
             return tokenResponse;
         } catch (HttpClientErrorException e) {
-            // Gérer les erreurs (mauvais login, etc.)
             throw new RuntimeException("Authentication failed: " + e.getResponseBodyAsString());
         }
     }
