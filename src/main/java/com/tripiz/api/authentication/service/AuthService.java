@@ -1,15 +1,26 @@
 package com.tripiz.api.authentication.service;
 
+import com.tripiz.api.authentication.dto.LoginRequest;
 import com.tripiz.api.authentication.dto.RegisterRequest;
 import com.tripiz.api.authentication.dto.RegisterResponse;
+import com.tripiz.api.authentication.dto.TokenResponse;
 import com.tripiz.api.domain.User;
 import com.tripiz.api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -69,5 +80,40 @@ public class AuthService {
 
         User saved = userRepository.save(user);
         return new RegisterResponse(saved.getUserId(), saved.getEmail(), saved.getRole());
+    }
+
+    public TokenResponse login(LoginRequest request) {
+        // Construction du body de la requête (application/x-www-form-urlencoded)
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("client_id", "tripiz-client");
+        body.add("username", request.getUsername());
+        body.add("password", request.getPassword());
+        body.add("grant_type", "password");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(body, headers);
+
+        // Appel à Keycloak
+        RestTemplate restTemplate = new RestTemplate();
+        String keycloakUrl = "https://keycloak-production-53a7.up.railway.app/realms/tripiz/protocol/openid-connect/token";
+        // ou récupérer l'URL depuis application.properties (ex: keycloak.auth-server-url)
+
+        try {
+            ResponseEntity<Map> response = restTemplate.postForEntity(keycloakUrl, entity, Map.class);
+            Map<String, Object> responseBody = response.getBody();
+
+            TokenResponse tokenResponse = new TokenResponse();
+            tokenResponse.setAccessToken((String) responseBody.get("access_token"));
+            tokenResponse.setRefreshToken((String) responseBody.get("refresh_token"));
+            tokenResponse.setTokenType((String) responseBody.get("token_type"));
+            tokenResponse.setExpiresIn(((Number) responseBody.get("expires_in")).longValue());
+
+            return tokenResponse;
+        } catch (HttpClientErrorException e) {
+            // Gérer les erreurs (mauvais login, etc.)
+            throw new RuntimeException("Authentication failed: " + e.getResponseBodyAsString());
+        }
     }
 }
