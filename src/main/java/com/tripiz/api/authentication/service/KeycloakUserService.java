@@ -1,6 +1,6 @@
 package com.tripiz.api.authentication.service;
 
-import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;   // ← Import Jakarta (si Keycloak 24+)
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
@@ -23,26 +23,20 @@ public class KeycloakUserService {
     @Value("${keycloak.realm}")
     private String realm;
 
-    // Optionnel : on peut garder le client admin-cli ou utiliser directement le compte admin
-    @Value("${keycloak.admin-client-id:admin-cli}")
+    @Value("${keycloak.admin-client-id}")
     private String adminClientId;
 
-    @Value("${keycloak.admin-username:admin}")
-    private String adminUsername;
-
-    @Value("${keycloak.admin-password:admin}")
-    private String adminPassword;
+    @Value("${keycloak.admin-client-secret}")
+    private String adminClientSecret;
 
     public String createUser(String email, String password, String firstName, String lastName) {
         try {
-            // Utiliser le compte admin pour obtenir un token (flux password)
             Keycloak keycloak = KeycloakBuilder.builder()
                     .serverUrl(authServerUrl)
                     .realm("master")
-                    .clientId(adminClientId)    // admin-cli
-                    .username(adminUsername)
-                    .password(adminPassword)
-                    .grantType("password")
+                    .clientId(adminClientId)
+                    .clientSecret(adminClientSecret)
+                    .grantType("client_credentials")
                     .build();
 
             UserRepresentation userRep = new UserRepresentation();
@@ -62,18 +56,18 @@ public class KeycloakUserService {
             Response response = keycloak.realm(realm).users().create(userRep);
             if (response.getStatus() != 201) {
                 String error = response.readEntity(String.class);
-                log.error("Keycloak error {}: {}", response.getStatus(), error);
-                throw new RuntimeException("Keycloak creation failed: " + error);
+                log.error("Erreur Keycloak lors de la création: {}", error);
+                throw new RuntimeException("Échec de la création Keycloak: " + error);
             }
 
             String location = response.getHeaderString("Location");
             String keycloakId = location.substring(location.lastIndexOf('/') + 1);
-            log.info("User created in Keycloak with ID: {}", keycloakId);
+            log.info("Utilisateur créé dans Keycloak avec ID: {}", keycloakId);
             return keycloakId;
 
         } catch (Exception e) {
-            log.error("Exception creating user in Keycloak", e);
-            throw new RuntimeException("Failed to create user in Keycloak", e);
+            log.error("Erreur lors de la communication avec Keycloak", e);
+            throw new RuntimeException("Impossible de créer l'utilisateur dans Keycloak", e);
         }
     }
 }
