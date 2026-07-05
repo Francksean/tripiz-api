@@ -1,6 +1,7 @@
 package com.tripiz.api.repository;
 
 import com.tripiz.api.domain.Trip;
+import com.tripiz.api.domain.TripStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -14,5 +15,7 @@ public interface TripRepository extends JpaRepository<Trip, UUID> {
     @Query("SELECT COALESCE(SUM(t.passengerCount), 0) FROM Trip t")
     int countAllPassengers();
 
-    int countByTripStatus(String tripStatus);
+    int countByTripStatus(TripStatus tripStatus);
+
+
 }

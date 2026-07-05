@@ -2,6 +2,7 @@ package com.tripiz.api.service;
 
 import com.tripiz.api.domain.Itinerary;
 import com.tripiz.api.domain.Trip;
+import com.tripiz.api.domain.TripStatus;
 import com.tripiz.api.model.CreateTripRequestDTO;
 import com.tripiz.api.model.TripDTO;
 import com.tripiz.api.model.TripStatisticsDTO;
@@ -88,9 +89,9 @@ public class TripService {
 
     public TripStatisticsDTO getStatistics() {
         return new TripStatisticsDTO()
-                .programmed(Math.toIntExact(tripRepository.countByTripStatus("PROGRAMME")))
-                .ongoing(Math.toIntExact(tripRepository.countByTripStatus("EN_COURS")))
-                .completed(Math.toIntExact(tripRepository.countByTripStatus("TERMINE")))
-                .cancelled(Math.toIntExact(tripRepository.countByTripStatus("ANNULE")));
+                .programmed(tripRepository.countByTripStatus(TripStatus.PROGRAMME))
+                .ongoing(tripRepository.countByTripStatus(TripStatus.EN_COURS))
+                .completed(tripRepository.countByTripStatus(TripStatus.TERMINE))
+                .cancelled(tripRepository.countByTripStatus(TripStatus.ANNULE));
     }
 }
