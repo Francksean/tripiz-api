@@ -1,9 +1,7 @@
 package com.tripiz.api.controllers;
 
 
-import com.tripiz.api.model.CreateStationRequestDTO;
-import com.tripiz.api.model.CreateTripRequestDTO;
-import com.tripiz.api.model.TripDTO;
+import com.tripiz.api.model.*;
 import com.tripiz.api.service.StationService;
 import com.tripiz.api.service.TripService;
 import com.tripiz.api.service.mapper.StationMapper;
@@ -11,24 +9,28 @@ import com.tripiz.api.service.mapper.TripMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
-@RequestMapping("/trip")
+@RequestMapping("/trip/admin")
 @RequiredArgsConstructor
 public class TripResource {
 
     private final TripService tripService;
 
     @PostMapping("/createTrip")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Void> createTrip(@RequestBody CreateTripRequestDTO request) {
         tripService.createTrip(request);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/getTripsByDriver")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<List<TripDTO>> getTripsByDriver() {
         List<TripDTO> trips = tripService.getTripsByRandomDriver();
 
@@ -39,5 +41,46 @@ public class TripResource {
         return ResponseEntity.ok(trips);
     }
 
+    @PatchMapping("/patch/{id}")
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<Void> updateTrip(@PathVariable UUID id, @RequestBody CreateTripRequestDTO request) {
+        tripService.updateTrip(id, request);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<Void> deleteTrip(@PathVariable UUID id) {
+        tripService.deleteTrip(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/countAllPassengers")
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<Integer> countAllPassengers() {
+        int count = tripService.countAllPassengers();
+        return ResponseEntity.ok(count);
+    }
+
+    @GetMapping("/countAllTrips")
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<Integer> countAllTrips() {
+        int count = tripService.countAllTrips();
+        return ResponseEntity.ok(count);
+    }
+
+    @GetMapping("/getAll")
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<List<TripDTO>> getAllTrips() {
+        List<TripDTO> trip = tripService.getAllTrips();
+        return ResponseEntity.ok(trip);
+    }
+
+    @GetMapping("/getStatistics")
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<TripStatisticsDTO> getStatistics() {
+        TripStatisticsDTO trip = tripService.getStatistics();
+        return ResponseEntity.ok(trip);
+    }
 
 }

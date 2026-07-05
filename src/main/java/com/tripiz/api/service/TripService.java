@@ -1,8 +1,10 @@
 package com.tripiz.api.service;
 
+import com.tripiz.api.domain.Itinerary;
 import com.tripiz.api.domain.Trip;
 import com.tripiz.api.model.CreateTripRequestDTO;
 import com.tripiz.api.model.TripDTO;
+import com.tripiz.api.model.TripStatisticsDTO;
 import com.tripiz.api.repository.TripRepository;
 import com.tripiz.api.repository.UserRepository;
 import com.tripiz.api.service.mapper.TripMapper;
@@ -12,10 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 
 @Service
@@ -60,4 +59,38 @@ public class TripService {
         return tripMapper.toDTOList(trips);
     }
 
+    public void updateTrip(UUID id, CreateTripRequestDTO request) {
+        Trip trip = tripRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Trip not found"));
+
+        tripMapper.updateTripFromDto(request, trip);
+
+        tripRepository.save(trip);
+    }
+
+    public void deleteTrip(UUID id) {
+        Trip trip = tripRepository.findById(id).orElseThrow(() -> new RuntimeException("Trip not found"));
+
+        tripRepository.delete(trip);
+    }
+
+    public int countAllPassengers() {
+        return tripRepository.countAllPassengers();
+    }
+
+    public List<TripDTO> getAllTrips() {
+        return tripMapper.toDTOList(tripRepository.findAll());
+    }
+
+    public int countAllTrips() {
+        return (int) tripRepository.count();
+    }
+
+    public TripStatisticsDTO getStatistics() {
+        return new TripStatisticsDTO()
+                .programmed(Math.toIntExact(tripRepository.countByTripStatus("PROGRAMME")))
+                .ongoing(Math.toIntExact(tripRepository.countByTripStatus("EN_COURS")))
+                .completed(Math.toIntExact(tripRepository.countByTripStatus("TERMINE")))
+                .cancelled(Math.toIntExact(tripRepository.countByTripStatus("ANNULE")));
+    }
 }

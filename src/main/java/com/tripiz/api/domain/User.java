@@ -21,7 +21,7 @@ public class User {
     @Column(name = "user_id")
     private UUID userId;
 
-    @Column(name = "keycloak_id", unique = true)  // ← nouveau champ
+    @Column(name = "keycloak_id", unique = true)
     private String keycloakId;
 
     @Column(name = "first_name")
@@ -43,7 +43,7 @@ public class User {
     private String status;
 
     @Column(name = "password")
-    private String password; // peut rester, mais on ne l'utilise plus pour l'authentification
+    private String password;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

@@ -139,6 +139,54 @@ paths:
         '404':
           description: "User not found"
 
+  /user/getById/{id}:
+    get:
+      tags:
+        - "User"
+      summary: "Get user by id"
+      description: "Get a user by its id"
+      operationId: getUserById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: "User found"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDTO'
+        '404':
+          description: "Not found"
+
+  /user/getDriverById/{id}:
+    get:
+      tags:
+        - "User"
+      summary: "Get driver by id"
+      description: "Get a user with the role Driver by its id"
+      operationId: getDriverById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: "User found"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDTO'
+        '404':
+          description: "Not found"
+
   /user/admin/users:
     get:
       tags:
@@ -148,6 +196,29 @@ paths:
       operationId: getAllUsers
       security:
         - bearerAuth: []
+      responses:
+        '200':
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserDTO'
+        '401':
+          description: "Unauthorized"
+        '403':
+          description: "Forbidden"
+
+  /user/admin/drivers:
+    get:
+      tags:
+        - "User"
+      summary: "Get all drivers"
+      description: "Retrieve list of all users with role Driver (admin only)"
+      operationId: getDrivers
+      security:
+        - bearerAuth: [ ]
       responses:
         '200':
           description: "Success"
@@ -758,7 +829,7 @@ paths:
         '404':
           description: "Not found"
 
-  /trip/createTrip:
+  /trip/admin/createTrip:
     post:
       tags:
         - "Trip"
@@ -783,7 +854,7 @@ paths:
         '403':
           description: "Forbidden"
 
-  /trip/getTripsByDriver:
+  /trip/admin/getTripsByDriver:
     post:
       tags:
         - "Trip"
@@ -817,6 +888,154 @@ paths:
           description: "Forbidden"
         '404':
           description: "Not found"
+
+  /trip/admin/delete/{id}:
+    delete:
+      tags:
+        - "Trip"
+      summary: "Delete a trip"
+      description: "Delete a trip by ID (admin only)"
+      operationId: deleteTrip
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: "Trip deleted successfully"
+        '401':
+          description: "Unauthorized"
+        '403':
+          description: "Forbidden"
+        '404':
+          description: "Not Found"
+
+  /trip/admin/patch/{id}:
+    patch:
+      tags:
+        - "Trip"
+      summary: "Update a trip"
+      description: "Update trip details by ID (admin only)"
+      operationId: updateTrip
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTripRequestDTO'
+      responses:
+        '200':
+          description: "Trip updated successfully"
+        '400':
+          description: "Invalid input"
+        '401':
+          description: "Unauthorized"
+        '403':
+          description: "Forbidden"
+        '404':
+          description: "Not found"
+
+  /trip/admin/countAllPassengers:
+    get:
+      tags:
+        - "Trip"
+      summary: "Count total passengers"
+      description: "Get total number of passengers in all the trips (admin only)"
+      operationId: countAllPassengers
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int32
+        '401':
+          description: "Unauthorized"
+        '403':
+          description: "Forbidden"
+
+  /trip/admin/countAllTrips:
+    get:
+      tags:
+        - "Trip"
+      summary: "Count total trips"
+      description: "Get total number of trips (admin only)"
+      operationId: countAllTrips
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int32
+        '401':
+          description: "Unauthorized"
+        '403':
+          description: "Forbidden"
+
+  /trip/admin/getAll:
+    get:
+      tags:
+        - "Trip"
+      summary: "Get all trips"
+      description: "Retrieve list of all trips (admin only)"
+      operationId: getAllITrips
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TripDTO'
+        '401':
+          description: "Unauthorized"
+        '403':
+          description: "Forbidden"
+
+  /trip/admin/getStatistics:
+    get:
+      tags:
+        - "Trip"
+      summary: "Get statistics"
+      description: "Retrieve the statistics about all the trips (admin only)"
+      operationId: getStatistics
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/TripStatisticsDTO'
+        '401':
+          description: "Unauthorized"
+        '403':
+          description: "Forbidden"
 
   /bus/{id}/position:
     get:
@@ -1011,15 +1230,12 @@ components:
         bus_id:
           type: string
           format: uuid
-
         latitude:
           type: number
           format: double
-
         longitude:
           type: number
           format: double
-
         type:
           $ref: '#/components/schemas/PositionMessageType'
 
@@ -1121,6 +1337,13 @@ components:
           format: double
 
     # ----- Trip -----
+    TripStatus:
+     type: string
+     enum:
+      - PROGRAMME
+      - EN_COURS
+      - ANNULE
+      - TERMINE
     CreateTripRequestDTO:
       type: object
       required:
@@ -1152,11 +1375,9 @@ components:
           format: time
           example: "08:05:00"
         trip_status:
-          type: string
-          example: "En cours"
+          $ref: '#/components/schemas/TripStatus'
         passenger_count:
           type: integer
-
     TripDTO:
       type: object
       properties:
@@ -1182,6 +1403,18 @@ components:
           type: string
           format: time
         trip_status:
-          type: string
+          $ref: '#/components/schemas/TripStatus'
         passenger_count:
+          type: integer
+
+    TripStatisticsDTO:
+      type: object
+      properties:
+        programmed:
+          type: integer
+        ongoing:
+          type: integer
+        completed:
+          type: integer
+        cancelled:
           type: integer
