@@ -18,6 +18,11 @@ public class UserResource {
 
     private final UserService userService;
 
+    @GetMapping("/getById/{id}")
+    public ResponseEntity<UserDTO> getUserById(@PathVariable UUID id) {
+       return ResponseEntity.ok(userService.getUserById(id));
+    }
+
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Void> updateUser(@PathVariable UUID id, @RequestBody UpdateUserRequestDTO dto) {
@@ -66,5 +71,10 @@ public class UserResource {
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<List<UserDTO>> getDrivers() {
         return ResponseEntity.ok(userService.getDrivers());
+    }
+
+    @GetMapping("/getDriverById/{id}")
+    public ResponseEntity<UserDTO> getDriverById(@PathVariable UUID id) {
+        return ResponseEntity.ok(userService.getDriverById(id));
     }
 }

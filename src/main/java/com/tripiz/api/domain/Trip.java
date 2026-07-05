@@ -42,7 +42,7 @@ public class Trip {
     private LocalTime actualDeparture;
 
     @Column(name = "trip_status")
-    private String tripStatus;
+    private TripStatus tripStatus;
 
     @Column(name = "passenger_count")
     private Integer passengerCount;

@@ -62,4 +62,17 @@ public class UserService {
     public long countUsersCreatedThisMonth() {
         return userRepository.countByCreatedAtAfter(LocalDate.now().withDayOfMonth(1).atStartOfDay());
     }
+
+    public UserDTO getUserById(UUID id) {
+        return userRepository.findById(id)
+                .map(userMapper::toUserDTO)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    public UserDTO getDriverById(UUID id) {
+        return userRepository.findByUserIdAndRole(id, "driver")
+                .map(userMapper::toUserDTO)
+                .orElseThrow(() -> new RuntimeException("Driver not found"));
+    }
+
 }

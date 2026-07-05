@@ -15,7 +15,7 @@ public class BusPosition {
         private UUID busId;
         private double latitude;
         private double longitude;
-        private PositionMessageType type; // JOIN, UPDATE, LEAVE
+        private PositionMessageType type;
 
 
 }
