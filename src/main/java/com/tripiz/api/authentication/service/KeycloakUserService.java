@@ -33,8 +33,8 @@ public class KeycloakUserService {
         try {
             Keycloak keycloak = KeycloakBuilder.builder()
                     .serverUrl(authServerUrl)
-                    .realm("master")
-                    .clientId(adminClientId)        // "admin-cli"
+                    .realm(realm)
+                    .clientId(adminClientId)
                     .clientSecret(adminClientSecret) // injection via @Value
                     .grantType("client_credentials")
                     .build();
