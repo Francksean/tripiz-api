@@ -7,6 +7,7 @@ import com.tripiz.api.authentication.dto.TokenResponse;
 import com.tripiz.api.domain.User;
 import com.tripiz.api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -29,6 +30,9 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final KeycloakUserService keycloakUserService;
+
+    @Value("${keycloak.admin-client-secret}")
+    private String clientSecret;
 
     @Transactional
     public RegisterResponse registerClient(RegisterRequest request) {
@@ -93,6 +97,7 @@ public class AuthService {
     public TokenResponse login(LoginRequest request) {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("client_id", "tripiz-client");
+        body.add("client_secret", clientSecret);
         body.add("username", request.getUsername());
         body.add("password", request.getPassword());
         body.add("grant_type", "password");
