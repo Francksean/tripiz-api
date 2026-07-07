@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface TripRepository extends JpaRepository<Trip, UUID> {
@@ -21,5 +22,7 @@ public interface TripRepository extends JpaRepository<Trip, UUID> {
     int countByTripStatus(TripStatus tripStatus);
 
     long countByTripDateBetween(LocalDate start, LocalDate end);
+
+    Optional<Trip> findByDriverIdAndTripStatus(UUID driverId, TripStatus tripStatus);
 
 }
