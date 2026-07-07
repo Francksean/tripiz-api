@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Data
@@ -28,13 +28,13 @@ public class Ticket {
     private UUID tripId;
 
     @Column(name = "purchase_date", nullable = false)
-    private LocalDateTime purchaseDate;
+    private LocalDate purchaseDate;
 
     @Column(name = "use_date")
-    private LocalDateTime useDate;
+    private LocalDate useDate;
 
     @Column(name = "expiration_date", nullable = false)
-    private LocalDateTime expirationDate;
+    private LocalDate expirationDate;
 
     @Column(name = "price", nullable = false)
     private Double price;

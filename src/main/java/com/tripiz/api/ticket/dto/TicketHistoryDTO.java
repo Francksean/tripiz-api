@@ -4,7 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.UUID;
 
@@ -21,7 +21,7 @@ public class TicketHistoryDTO {
     private Double price;
     private String paymentMethod;
     private String ticketStatus;
-    private LocalDateTime purchaseDate;
-    private LocalDateTime useDate;
-    private LocalDateTime expirationDate;
+    private LocalDate purchaseDate;
+    private LocalDate useDate;
+    private LocalDate expirationDate;
 }

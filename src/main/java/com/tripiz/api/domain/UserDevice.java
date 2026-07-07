@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
@@ -32,6 +32,6 @@ public class UserDevice {
 
     private boolean active;
 
-    private LocalDateTime lastConnection;
+    private LocalDate lastConnection;
 
 }

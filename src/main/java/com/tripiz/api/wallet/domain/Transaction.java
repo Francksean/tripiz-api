@@ -7,7 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
@@ -25,7 +25,7 @@ public abstract class Transaction {
     private String transactionType;
 
     private double amount;
-    private LocalDateTime timestamp;
+    private LocalDate timestamp;
     private String reference; // Identifiant unique métier
 
     @ManyToOne(fetch = FetchType.LAZY)

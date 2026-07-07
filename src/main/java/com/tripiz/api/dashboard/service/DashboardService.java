@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -35,18 +35,18 @@ public class DashboardService {
     public DashboardStatsDTO getDashboardStats(DashboardFilters filters) {
         if (filters == null) {
             filters = new DashboardFilters();
-            filters.setStartDate(LocalDate.now().atStartOfDay());
-            filters.setEndDate(LocalDateTime.now());
+            filters.setStartDate(LocalDate.now());
+            filters.setEndDate(LocalDate.now());
         }
 
-        LocalDateTime start = filters.getStartDate();
-        LocalDateTime end = filters.getEndDate();
+        LocalDate start = filters.getStartDate();
+        LocalDate end = filters.getEndDate();
 
         long activeUsers = userRepository.countByStatusIgnoreCase("ONLINE");
         long activeBuses = busRepository.countByStatusIgnoreCase("En service");
 
-        LocalDateTime todayStart = LocalDate.now().atStartOfDay();
-        LocalDateTime todayEnd = LocalDateTime.now();
+        LocalDate todayStart = LocalDate.now();
+        LocalDate todayEnd = LocalDate.now();
         long tripsToday = tripRepository.countByTripDateBetween(todayStart, todayEnd);
 
         Double revenueToday = ticketRepository.sumPriceByPurchaseDateBetween(todayStart, todayEnd);
@@ -107,12 +107,12 @@ public class DashboardService {
 
     private List<RevenueEvolutionDTO> getRevenueEvolution(int days) {
         List<RevenueEvolutionDTO> result = new ArrayList<>();
-        LocalDateTime now = LocalDateTime.now();
+        LocalDate now = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         for (int i = days - 1; i >= 0; i--) {
-            LocalDateTime dayStart = now.minusDays(i).with(LocalTime.MIN);
-            LocalDateTime dayEnd = now.minusDays(i).with(LocalTime.MAX);
+            LocalDate dayStart = now.minusDays(i).with(LocalTime.MIN);
+            LocalDate dayEnd = now.minusDays(i).with(LocalTime.MAX);
             Double revenue = ticketRepository.sumPriceByPurchaseDateBetween(dayStart, dayEnd);
             if (revenue == null) revenue = 0.0;
             result.add(RevenueEvolutionDTO.builder()
@@ -123,7 +123,7 @@ public class DashboardService {
         return result;
     }
 
-    private List<PaymentMethodUsageDTO> getPaymentMethodUsage(LocalDateTime start, LocalDateTime end) {
+    private List<PaymentMethodUsageDTO> getPaymentMethodUsage(LocalDate start, LocalDate end) {
         List<Object[]> results = ticketRepository.countByPaymentMethodBetween(start, end);
         long total = results.stream().mapToLong(r -> (Long) r[1]).sum();
         return results.stream().map(r -> {
@@ -138,7 +138,7 @@ public class DashboardService {
         }).collect(Collectors.toList());
     }
 
-    private List<TripPassengerDTO> getSalesByLine(LocalDateTime start, LocalDateTime end) {
+    private List<TripPassengerDTO> getSalesByLine(LocalDate start, LocalDate end) {
         List<Object[]> results = ticketRepository.countByTripIdBetween(start, end);
         return results.stream().map(r -> {
             UUID tripId = (UUID) r[0];
@@ -153,12 +153,12 @@ public class DashboardService {
 
     private List<RechargeEvolutionDTO> getRechargeEvolution(int days) {
         List<RechargeEvolutionDTO> result = new ArrayList<>();
-        LocalDateTime now = LocalDateTime.now();
+        LocalDate now = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         for (int i = days - 1; i >= 0; i--) {
-            LocalDateTime dayStart = now.minusDays(i).with(LocalTime.MIN);
-            LocalDateTime dayEnd = now.minusDays(i).with(LocalTime.MAX);
+            LocalDate dayStart = now.minusDays(i).with(LocalTime.MIN);
+            LocalDate dayEnd = now.minusDays(i).with(LocalTime.MAX);
             long count = transactionRepository.countByTransactionTypeAndTimestampBetween("RECHARGE", dayStart, dayEnd);
             result.add(RechargeEvolutionDTO.builder()
                     .day(dayStart.format(formatter))

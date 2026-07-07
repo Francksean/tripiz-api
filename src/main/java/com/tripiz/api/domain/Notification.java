@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
@@ -30,7 +30,7 @@ public class Notification {
     @Column(length = 1000)
     private String body;
 
-    private LocalDateTime createdAt;
+    private LocalDate createdAt;
 
     private Boolean isRead;
 
