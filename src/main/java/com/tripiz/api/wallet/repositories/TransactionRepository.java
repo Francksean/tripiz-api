@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,15 +19,15 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     @Query("SELECT COUNT(t) FROM Transaction t WHERE t.transactionType = :type AND t.timestamp BETWEEN :start AND :end")
     long countByTransactionTypeAndTimestampBetween(
             @Param("type") String type,
-            @Param("start") LocalDate start,
-            @Param("end") LocalDate end
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end
     );
 
     // Nouvelle méthode pour sommer les montants par type et période
     @Query("SELECT SUM(t.amount) FROM Transaction t WHERE t.transactionType = :type AND t.timestamp BETWEEN :start AND :end")
     Double sumAmountByTransactionTypeAndTimestampBetween(
             @Param("type") String type,
-            @Param("start") LocalDate start,
-            @Param("end") LocalDate end
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end
     );
 }

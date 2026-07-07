@@ -21,7 +21,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -48,7 +48,7 @@ public class TransactionService {
         Recharge recharge = new Recharge();
         recharge.setAmount(request.getAmount());
         recharge.setWallet(wallet);
-        recharge.setTimestamp(LocalDate.now());
+        recharge.setTimestamp(LocalDateTime.now());
         recharge.setReference(UUID.randomUUID().toString());
         recharge.setStatus(TransactionStatus.PENDING);
         recharge.setRechargerNumber(request.getPhone());
@@ -160,7 +160,7 @@ public class TransactionService {
         Spending spending = new Spending();
         spending.setAmount(request.getAmount());
         spending.setWallet(wallet);
-        spending.setTimestamp(LocalDate.now());
+        spending.setTimestamp(LocalDateTime.now());
         spending.setReference(UUID.randomUUID().toString());
         spending.setStatus(TransactionStatus.COMPLETE);
 
@@ -223,7 +223,7 @@ public class TransactionService {
         history.setWallet(wallet);
         history.setOldBalance(oldBalance);
         history.setNewBalance(wallet.getBalance());
-        history.setChangeDate(LocalDate.now());
+        history.setChangeDate(LocalDateTime.now());
         history.setChangeReason(reason);
         balanceHistoryRepository.save(history);
     }

@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -22,6 +22,6 @@ public class BalanceHistory {
 
     private double oldBalance;
     private double newBalance;
-    private LocalDate changeDate;
+    private LocalDateTime changeDate;
     private String changeReason; // "PAYMENT", "RECHARGE", etc.
 }

@@ -2,12 +2,12 @@ package com.tripiz.api.dashboard.dto;
 
 import lombok.Data;
 
-import java.time.LocalDate;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalDateTime;
 
 @Data
 public class DashboardFilters {
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
     private String period;
 }

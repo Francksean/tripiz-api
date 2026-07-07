@@ -20,7 +20,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @Service
@@ -58,7 +58,7 @@ public class AuthService {
                 .phone(request.getPhone())
                 .role("client")
                 .status("ONLINE")
-                .createdAt(LocalDate.now())
+                .createdAt(LocalDateTime.now())
                 .build();
 
         User saved = userRepository.save(user);
@@ -87,7 +87,7 @@ public class AuthService {
                 .phone(request.getPhone())
                 .role("driver")
                 .status("ONLINE")
-                .createdAt(LocalDate.now())
+                .createdAt(LocalDateTime.now())
                 .build();
 
         User saved = userRepository.save(user);

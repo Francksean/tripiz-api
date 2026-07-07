@@ -8,7 +8,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/dashboard")
@@ -20,8 +20,8 @@ public class DashboardController {
 
     @GetMapping("/stats")
     public DashboardStatsDTO getStats(
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDate startDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDate endDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
             @RequestParam(required = false) String period) {
 
         DashboardFilters filters = new DashboardFilters();
@@ -30,7 +30,7 @@ public class DashboardController {
             filters.setEndDate(endDate);
         } else if (period != null) {
             // Gérer les périodes : 24h, 7d, 30d, year
-            LocalDate now = LocalDate.now();
+            LocalDateTime now = LocalDateTime.now();
             switch (period) {
                 case "24h":
                     filters.setStartDate(now.minusHours(24));
@@ -55,7 +55,7 @@ public class DashboardController {
             }
         } else {
             // Par défaut aujourd'hui
-            LocalDate now = LocalDate.now();
+            LocalDateTime now = LocalDateTime.now();
             filters.setStartDate(now.withHour(0).withMinute(0).withSecond(0));
             filters.setEndDate(now);
         }
