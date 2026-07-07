@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Date;
 import java.util.UUID;
 
 @Data
@@ -42,6 +41,7 @@ public class Trip {
     private LocalTime actualDeparture;
 
     @Column(name = "trip_status")
+    @Enumerated(EnumType.STRING)   // ← AJOUT OBLIGATOIRE
     private TripStatus tripStatus;
 
     @Column(name = "passenger_count")
