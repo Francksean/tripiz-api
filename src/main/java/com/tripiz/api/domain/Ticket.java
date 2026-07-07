@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
@@ -17,17 +18,33 @@ import java.util.UUID;
 public class Ticket {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID user_id;
-    private String first_name;
-    private String last_name;
-    private String email;
-    private String profile_image;
-    private String phone;
+    @Column(name = "ticket_id")
+    private UUID ticketId;
+
+    @Column(name = "user_id", nullable = false)
+    private UUID userId;
+
+    @Column(name = "trip_id", nullable = false)
+    private UUID tripId;
+
+    @Column(name = "purchase_date", nullable = false)
+    private LocalDateTime purchaseDate;
+
+    @Column(name = "use_date")
+    private LocalDateTime useDate;
+
+    @Column(name = "expiration_date", nullable = false)
+    private LocalDateTime expirationDate;
+
+    @Column(name = "price", nullable = false)
+    private Double price;
+
+    @Column(name = "payment_method", nullable = false)
+    private String paymentMethod;
+
+    @Column(name = "status", nullable = false)
     private String status;
-    private String password;
-    @Builder.Default
-    private String role = "client";
+
+    @Column(name = "qr_code")
+    private String qrCode;
 }
-
-
-

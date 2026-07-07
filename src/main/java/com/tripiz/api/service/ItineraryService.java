@@ -1,9 +1,7 @@
 package com.tripiz.api.service;
 
-import com.tripiz.api.domain.Bus;
 import com.tripiz.api.domain.Direction;
 import com.tripiz.api.domain.Itinerary;
-import com.tripiz.api.domain.Station;
 import com.tripiz.api.model.CreateItineraryRequestDTO;
 import com.tripiz.api.model.ItineraryResponseDTO;
 import com.tripiz.api.repository.ItineraryRepository;

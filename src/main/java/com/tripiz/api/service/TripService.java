@@ -1,6 +1,5 @@
 package com.tripiz.api.service;
 
-import com.tripiz.api.domain.Itinerary;
 import com.tripiz.api.domain.Trip;
 import com.tripiz.api.domain.TripStatus;
 import com.tripiz.api.model.CreateTripRequestDTO;
@@ -13,8 +12,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 
