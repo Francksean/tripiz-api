@@ -14,9 +14,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
-
 
 @Service
 @RequiredArgsConstructor
@@ -64,7 +64,27 @@ public class TripService {
         Trip trip = tripRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Trip not found"));
 
-        tripMapper.updateTripFromDto(request, trip);
+        if (request.getBusId() != null) {
+            trip.setBusId(request.getBusId());
+        }
+        if (request.getDriverId() != null) {
+            trip.setDriverId(request.getDriverId());
+        }
+        if (request.getItineraryId() != null) {
+            trip.setItineraryId(request.getItineraryId());
+        }
+        if (request.getTripDate() != null) {
+            trip.setTripDate(request.getTripDate());
+        }
+        if (request.getScheduleDeparture() != null) {
+            trip.setActualDeparture(LocalTime.parse(request.getActualDeparture()));
+        }
+        if (request.getTripStatus() != null) {
+            trip.setActualDeparture(LocalTime.parse(request.getActualDeparture()));
+        }
+        if (request.getPassengerCount() != null) {
+            trip.setPassengerCount(request.getPassengerCount());
+        }
 
         tripRepository.save(trip);
     }
