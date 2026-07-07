@@ -1,11 +1,17 @@
 package com.tripiz.api.controllers;
 
+import com.tripiz.api.domain.User;
 import com.tripiz.api.model.UpdateUserRequestDTO;
 import com.tripiz.api.model.UserDTO;
+import com.tripiz.api.repository.UserRepository;
 import com.tripiz.api.service.UserService;
+import com.tripiz.api.ticket.dto.TicketHistoryDTO;
+import com.tripiz.api.ticket.service.TicketService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,6 +23,8 @@ import java.util.UUID;
 public class UserResource {
 
     private final UserService userService;
+    private final TicketService ticketService;
+    private final UserRepository userRepository;
 
     @GetMapping("/getById/{id}")
     public ResponseEntity<UserDTO> getUserById(@PathVariable UUID id) {
@@ -76,5 +84,15 @@ public class UserResource {
     @GetMapping("/getDriverById/{id}")
     public ResponseEntity<UserDTO> getDriverById(@PathVariable UUID id) {
         return ResponseEntity.ok(userService.getDriverById(id));
+    }
+
+    @GetMapping("/trips/history")
+    @PreAuthorize("hasRole('client') or hasRole('driver') or hasRole('admin')")
+    public ResponseEntity<List<TicketHistoryDTO>> getTripHistory(@AuthenticationPrincipal Jwt jwt) {
+        String keycloakId = jwt.getSubject();
+        User user = userRepository.findByKeycloakId(keycloakId)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+        List<TicketHistoryDTO> history = ticketService.getTicketHistoryForUser(user.getUserId());
+        return ResponseEntity.ok(history);
     }
 }

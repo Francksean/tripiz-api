@@ -47,6 +47,3 @@ public class Trip {
     @Column(name = "passenger_count")
     private Integer passengerCount;
 }
-
-
-

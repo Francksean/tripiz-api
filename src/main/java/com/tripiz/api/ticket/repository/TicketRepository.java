@@ -11,8 +11,6 @@ import java.util.UUID;
 
 public interface TicketRepository extends JpaRepository<Ticket, UUID> {
 
-    long countByStatus(String status);
-
     long countByStatusAndUseDateBetween(String status, LocalDateTime start, LocalDateTime end);
 
     long countByPurchaseDateBetween(LocalDateTime start, LocalDateTime end);
@@ -26,5 +24,5 @@ public interface TicketRepository extends JpaRepository<Ticket, UUID> {
     @Query("SELECT t.tripId, COUNT(t) FROM Ticket t WHERE t.purchaseDate BETWEEN :start AND :end GROUP BY t.tripId")
     List<Object[]> countByTripIdBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 
-    long countByPurchaseDateBetweenAndStatus(LocalDateTime start, LocalDateTime end, String status);
+    List<Ticket> findByUserId(UUID userId);
 }
