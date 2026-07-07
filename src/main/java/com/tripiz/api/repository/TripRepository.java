@@ -5,6 +5,7 @@ import com.tripiz.api.domain.TripStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,6 +20,6 @@ public interface TripRepository extends JpaRepository<Trip, UUID> {
 
     int countByTripStatus(TripStatus tripStatus);
 
-    long countByTripDateBetween(LocalDateTime start, LocalDateTime end);
+    long countByTripDateBetween(LocalDate start, LocalDate end);
 
 }

@@ -47,7 +47,10 @@ public class DashboardService {
 
         LocalDateTime todayStart = LocalDateTime.now();
         LocalDateTime todayEnd = LocalDateTime.now();
-        long tripsToday = tripRepository.countByTripDateBetween(todayStart, todayEnd);
+        long tripsToday = tripRepository.countByTripDateBetween(
+                todayStart.toLocalDate(),
+                todayEnd.toLocalDate()
+        );
 
         Double revenueToday = ticketRepository.sumPriceByPurchaseDateBetween(todayStart, todayEnd);
         if (revenueToday == null) revenueToday = 0.0;
