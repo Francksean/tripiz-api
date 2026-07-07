@@ -24,6 +24,10 @@ public class BusPositionService {
         return new ArrayList<>(positions.values());
     }
 
+    public List<BusPosition> getCurrentPositions() {
+        return getAllPositions();
+    }
+
     public void removePosition(UUID busId) {
         positions.remove(busId);
     }
