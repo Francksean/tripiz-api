@@ -54,4 +54,10 @@ public class ItineraryResource {
         List<ItineraryResponseDTO> station = itineraryService.getAllItineraries();
         return ResponseEntity.ok(station);
     }
+
+    @GetMapping("/public/all")
+    public ResponseEntity<List<ItineraryResponseDTO>> getAllItinerariesPublic() {
+        List<ItineraryResponseDTO> itineraries = itineraryService.getAllItineraries();
+        return ResponseEntity.ok(itineraries);
+    }
 }
