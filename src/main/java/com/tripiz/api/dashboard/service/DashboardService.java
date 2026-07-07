@@ -11,7 +11,7 @@ import com.tripiz.api.wallet.repositories.WalletRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -35,7 +35,7 @@ public class DashboardService {
     public DashboardStatsDTO getDashboardStats(DashboardFilters filters) {
         if (filters == null) {
             filters = new DashboardFilters();
-            filters.setStartDate(LocalDate.now().atStartOfDay());
+            filters.setStartDate(LocalDateTime.now());
             filters.setEndDate(LocalDateTime.now());
         }
 
@@ -45,9 +45,12 @@ public class DashboardService {
         long activeUsers = userRepository.countByStatusIgnoreCase("ONLINE");
         long activeBuses = busRepository.countByStatusIgnoreCase("En service");
 
-        LocalDateTime todayStart = LocalDate.now().atStartOfDay();
+        LocalDateTime todayStart = LocalDateTime.now();
         LocalDateTime todayEnd = LocalDateTime.now();
-        long tripsToday = tripRepository.countByTripDateBetween(todayStart, todayEnd);
+        long tripsToday = tripRepository.countByTripDateBetween(
+                todayStart.toLocalDate(),
+                todayEnd.toLocalDate()
+        );
 
         Double revenueToday = ticketRepository.sumPriceByPurchaseDateBetween(todayStart, todayEnd);
         if (revenueToday == null) revenueToday = 0.0;

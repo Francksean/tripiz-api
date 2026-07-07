@@ -1,19 +1,16 @@
 package com.tripiz.api.controllers;
 
 
-import com.tripiz.api.domain.Station;
 import com.tripiz.api.model.CreateStationRequestDTO;
 import com.tripiz.api.model.GetStationsRequestDTO;
 import com.tripiz.api.model.StationDTO;
 import com.tripiz.api.service.StationService;
-import com.tripiz.api.service.mapper.StationMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -22,7 +19,6 @@ import java.util.UUID;
 public class StationResource {
 
     private final StationService stationService;
-    private final StationMapper stationMapper;
 
     @PostMapping("/createStation")
     public ResponseEntity<Void> createStation(@RequestBody CreateStationRequestDTO request) {

@@ -3,10 +3,7 @@ package com.tripiz.api.controllers;
 
 import com.tripiz.api.domain.Trip;
 import com.tripiz.api.model.*;
-import com.tripiz.api.service.StationService;
 import com.tripiz.api.service.TripService;
-import com.tripiz.api.service.mapper.StationMapper;
-import com.tripiz.api.service.mapper.TripMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
