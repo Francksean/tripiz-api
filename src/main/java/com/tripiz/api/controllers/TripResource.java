@@ -1,6 +1,7 @@
 package com.tripiz.api.controllers;
 
 
+import com.tripiz.api.domain.Trip;
 import com.tripiz.api.model.*;
 import com.tripiz.api.service.StationService;
 import com.tripiz.api.service.TripService;
@@ -71,8 +72,8 @@ public class TripResource {
 
     @GetMapping("/getAll")
     @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<List<TripDTO>> getAllTrips() {
-        List<TripDTO> trip = tripService.getAllTrips();
+    public ResponseEntity<List<Trip>> getAllTrips() {
+        List<Trip> trip = tripService.getAllTrips();
         return ResponseEntity.ok(trip);
     }
 
