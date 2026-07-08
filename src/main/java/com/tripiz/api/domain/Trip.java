@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.UUID;
 
@@ -43,7 +42,7 @@ public class Trip {
 
     @Column(name = "trip_status")
     @Enumerated(EnumType.STRING)
-    private TripStatus tripStatus;
+    private com.tripiz.api.domain.TripStatus tripStatus;
 
     @Column(name = "passenger_count")
     private Integer passengerCount;
