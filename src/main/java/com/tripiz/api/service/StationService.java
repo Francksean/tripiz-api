@@ -27,16 +27,16 @@ public class StationService {
         }
 
 
-        // Station station = Station.builder()
-        //         .stationName(request.getStationName())
-        //         .stationType(request.getStationType())
-        //         .address(request.getAddress())
-        //         .latitude(request.getLatitude())
-        //         .longitude(request.getLongitude())
-        //         .status(request.getStatus())
-        //         .build();
+         Station station = Station.builder()
+                 .stationName(request.getStationName())
+                 .stationType(request.getStationType())
+                 .address(request.getAddress())
+                 .latitude(request.getLatitude())
+                 .longitude(request.getLongitude())
+                 .status(request.getStatus())
+                 .build();
 
-        // Station savedStation = stationRepository.save(station);
+         Station savedStation = stationRepository.save(station);
     }
 
     public List<StationDTO> getAllStations() {
