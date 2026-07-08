@@ -68,11 +68,10 @@ public class TripResource {
     }
 
     @GetMapping("/getAll")
-    @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<List<Trip>> getAllTrips() {
-        List<Trip> trip = tripService.getAllTrips();
-        return ResponseEntity.ok(trip);
-    }
+@PreAuthorize("hasRole('admin')")
+public ResponseEntity<List<TripDTO>> getAllTrips() {
+    return ResponseEntity.ok(tripService.getAllTrips());
+}
 
     @GetMapping("/getStatistics")
     @PreAuthorize("hasRole('admin')")

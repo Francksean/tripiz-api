@@ -96,8 +96,9 @@ public class TripService {
         return tripRepository.countAllPassengers();
     }
 
-    public List<Trip> getAllTrips() {
-        return tripRepository.findAll();
+    public List<TripDTO> getAllTrips() {
+        List<Trip> trips = tripRepository.findAll();
+        return tripMapper.toDTOList(trips);
     }
 
     public int countAllTrips() {
