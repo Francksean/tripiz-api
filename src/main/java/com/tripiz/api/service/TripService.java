@@ -74,9 +74,12 @@ public class TripService {
             trip.setTripDate(request.getTripDate());
         }
         if (request.getScheduleDeparture() != null) {
-            trip.setActualDeparture(LocalTime.parse(request.getActualDeparture()));
+            trip.setScheduleDeparture(LocalTime.parse(request.getScheduleDeparture()));
         }
         if (request.getTripStatus() != null) {
+            trip.setTripStatus(request.getTripStatus());
+        }
+        if (request.getActualDeparture() != null) {
             trip.setActualDeparture(LocalTime.parse(request.getActualDeparture()));
         }
         if (request.getPassengerCount() != null) {
