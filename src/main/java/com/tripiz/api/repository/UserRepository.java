@@ -20,4 +20,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     @Query("SELECT u.userId FROM User u WHERE u.role = 'driver'")
     List<UUID> findAllDriverIds();
     Optional<User> findByUserIdAndRole(UUID userId, String role);
+
+    Optional<User> findByEmail(String email);
 }
