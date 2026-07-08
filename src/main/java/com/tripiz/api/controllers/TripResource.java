@@ -1,7 +1,5 @@
 package com.tripiz.api.controllers;
 
-
-import com.tripiz.api.domain.Trip;
 import com.tripiz.api.model.*;
 import com.tripiz.api.service.TripService;
 import lombok.RequiredArgsConstructor;
@@ -68,10 +66,10 @@ public class TripResource {
     }
 
     @GetMapping("/getAll")
-@PreAuthorize("hasRole('admin')")
-public ResponseEntity<List<TripDTO>> getAllTrips() {
-    return ResponseEntity.ok(tripService.getAllTrips());
-}
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<List<TripDTO>> getAllTrips() {
+        return ResponseEntity.ok(tripService.getAllTrips());
+    }
 
     @GetMapping("/getStatistics")
     @PreAuthorize("hasRole('admin')")

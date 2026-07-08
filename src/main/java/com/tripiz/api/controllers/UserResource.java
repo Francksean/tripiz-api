@@ -91,7 +91,27 @@ public class UserResource {
     public ResponseEntity<List<TicketHistoryDTO>> getTripHistory(@AuthenticationPrincipal Jwt jwt) {
         String keycloakId = jwt.getSubject();
         User user = userRepository.findByKeycloakId(keycloakId)
-                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+                .orElseGet(() -> {
+                    String email = jwt.getClaim("email");
+                    String firstName = jwt.getClaim("given_name");
+                    String lastName = jwt.getClaim("family_name");
+                    String preferredUsername = jwt.getClaim("preferred_username");
+
+                    String role = "client";
+                    if ("admin@tripiz.com".equals(email)) {
+                        role = "admin";
+                    }
+
+                    User newUser = User.builder()
+                            .keycloakId(keycloakId)
+                            .email(email != null ? email : preferredUsername + "@tripiz.local")
+                            .firstName(firstName != null ? firstName : "Utilisateur")
+                            .lastName(lastName != null ? lastName : "")
+                            .role(role)
+                            .status("ONLINE")
+                            .build();
+                    return userRepository.save(newUser);
+                });
         List<TicketHistoryDTO> history = ticketService.getTicketHistoryForUser(user.getUserId());
         return ResponseEntity.ok(history);
     }
