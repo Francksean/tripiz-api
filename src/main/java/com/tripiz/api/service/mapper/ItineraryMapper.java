@@ -11,7 +11,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 @Mapper(componentModel = "spring")
 public interface ItineraryMapper {
 
-    ItineraryResponseDTO toItineraryResponseDTO(Itinerary itinerary);
+//    ItineraryResponseDTO toItineraryResponseDTO(Itinerary itinerary);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateItineraryFromDto(CreateItineraryRequestDTO dto, @MappingTarget Itinerary itinerary);
