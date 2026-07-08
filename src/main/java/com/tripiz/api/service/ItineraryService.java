@@ -53,11 +53,9 @@ public class ItineraryService {
             return Collections.emptyList();
         }
 
-        // Charger la station de départ (une seule)
         Station departure = stationRepository.findById(stationId).orElse(null);
         StationDTO departureDTO = departure != null ? stationMapper.toDTO(departure) : null;
 
-        // Charger toutes les stations d'arrivée en une seule requête
         Set<UUID> arrivalIds = itineraries.stream()
                 .map(Itinerary::getArrivalStation)
                 .filter(Objects::nonNull)
@@ -65,7 +63,6 @@ public class ItineraryService {
         Map<UUID, Station> arrivalMap = stationRepository.findAllById(arrivalIds).stream()
                 .collect(Collectors.toMap(Station::getStationId, Function.identity()));
 
-        // Construire les DTO enrichis
         return itineraries.stream()
                 .map(itinerary -> {
                     ItineraryResponseDTO dto = itineraryMapper.toDTO(itinerary);
