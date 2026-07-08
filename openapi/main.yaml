@@ -726,8 +726,8 @@ paths:
     get:
       tags:
         - "Itinerary"
-      summary: "Get itinerary by station ID"
-      description: "Retrieve itinerary associated with a station"
+      summary: "Get itineraries by station ID"
+      description: "Retrieve all itineraries associated with a departure station"
       operationId: getItinerariesByStation
       parameters:
         - name: id
@@ -738,11 +738,13 @@ paths:
             format: uuid
       responses:
         '200':
-          description: "Itinerary found"
+          description: "Itineraries found"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ItineraryResponseDTO'
+                type: array
+                items:
+                  $ref: '#/components/schemas/ItineraryResponseDTO'
         '404':
           description: "Not found"
 
@@ -999,7 +1001,7 @@ paths:
         - "Trip"
       summary: "Get all trips"
       description: "Retrieve list of all trips (admin only)"
-      operationId: getAllITrips
+      operationId: getAllTrips
       security:
         - bearerAuth: [ ]
       responses:
@@ -1077,12 +1079,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/BusPositionDTO'
-
-
-
-
-
-
 
 components:
   securitySchemes:
@@ -1192,6 +1188,7 @@ components:
         busId:
           type: string
           format: uuid
+
     BusDTO:
       type: object
       properties:
@@ -1218,12 +1215,14 @@ components:
           type: integer
         status:
           type: string
+
     PositionMessageType:
       type: string
       enum:
         - JOIN
         - UPDATE
         - LEAVE
+
     BusPositionDTO:
       type: object
       properties:
@@ -1327,23 +1326,22 @@ components:
         estimated_duration:
           type: integer
         departure_station:
-          type: string
-          format: uuid
+          $ref: '#/components/schemas/StationDTO'
         arrival_station:
-          type: string
-          format: uuid
+          $ref: '#/components/schemas/StationDTO'
         distance:
           type: number
           format: double
 
     # ----- Trip -----
     TripStatus:
-     type: string
-     enum:
-      - PROGRAMME
-      - EN_COURS
-      - ANNULE
-      - TERMINE
+      type: string
+      enum:
+        - PROGRAMME
+        - EN_COURS
+        - ANNULE
+        - TERMINE
+
     CreateTripRequestDTO:
       type: object
       required:
@@ -1378,6 +1376,7 @@ components:
           $ref: '#/components/schemas/TripStatus'
         passenger_count:
           type: integer
+
     TripDTO:
       type: object
       properties:

@@ -2,17 +2,21 @@ package com.tripiz.api.service;
 
 import com.tripiz.api.domain.Direction;
 import com.tripiz.api.domain.Itinerary;
+import com.tripiz.api.domain.Station;
 import com.tripiz.api.model.CreateItineraryRequestDTO;
 import com.tripiz.api.model.ItineraryResponseDTO;
+import com.tripiz.api.model.StationDTO;
 import com.tripiz.api.repository.ItineraryRepository;
+import com.tripiz.api.repository.StationRepository;
 import com.tripiz.api.service.mapper.ItineraryMapper;
+import com.tripiz.api.service.mapper.StationMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -21,6 +25,8 @@ public class ItineraryService {
 
     public final ItineraryRepository itineraryRepository;
     public final ItineraryMapper itineraryMapper;
+    private final StationRepository stationRepository;
+    private final StationMapper stationMapper;
 
     @Transactional
     public void createItinerary(CreateItineraryRequestDTO request) {
@@ -41,14 +47,75 @@ public class ItineraryService {
        itineraryRepository.save(itinerary);
     }
 
-    public ItineraryResponseDTO getItineraryById(UUID id) {
-        return itineraryRepository.findById(id)
-                .map(itineraryMapper::toItineraryResponseDTO)
-                .orElseThrow(() -> new RuntimeException("Itinerary not found"));
+    public List<ItineraryResponseDTO> getItinerariesByDepartureStation(UUID stationId) {
+        List<Itinerary> itineraries = itineraryRepository.findByDepartureStation(stationId);
+        if (itineraries.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // Charger la station de départ (une seule)
+        Station departure = stationRepository.findById(stationId).orElse(null);
+        StationDTO departureDTO = departure != null ? stationMapper.toDTO(departure) : null;
+
+        // Charger toutes les stations d'arrivée en une seule requête
+        Set<UUID> arrivalIds = itineraries.stream()
+                .map(Itinerary::getArrivalStation)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        Map<UUID, Station> arrivalMap = stationRepository.findAllById(arrivalIds).stream()
+                .collect(Collectors.toMap(Station::getStationId, Function.identity()));
+
+        // Construire les DTO
+        return itineraries.stream()
+                .map(itinerary -> {
+                    ItineraryResponseDTO dto = itineraryMapper.toDTO(itinerary);
+                    // On place la station de départ (connue)
+                    dto.setDepartureStation(departureDTO);
+                    // On place la station d'arrivée correspondante
+                    Station arrival = arrivalMap.get(itinerary.getArrivalStation());
+                    dto.setArrivalStation(arrival != null ? stationMapper.toDTO(arrival) : null);
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 
-    public List<Itinerary> getItinerariesByDepartureStation(UUID stationId) {
-        return itineraryRepository.findByDepartureStation(stationId);
+    public List<ItineraryResponseDTO> getAllItineraries() {
+        List<Itinerary> itineraries = itineraryRepository.findAll();
+        if (itineraries.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // Récupérer tous les IDs de stations (départ et arrivée)
+        Set<UUID> stationIds = new HashSet<>();
+        for (Itinerary it : itineraries) {
+            if (it.getDepartureStation() != null) stationIds.add(it.getDepartureStation());
+            if (it.getArrivalStation() != null) stationIds.add(it.getArrivalStation());
+        }
+        Map<UUID, Station> stationMap = stationRepository.findAllById(stationIds).stream()
+                .collect(Collectors.toMap(Station::getStationId, Function.identity()));
+
+        return itineraries.stream()
+                .map(itinerary -> {
+                    ItineraryResponseDTO dto = itineraryMapper.toDTO(itinerary);
+                    Station dep = stationMap.get(itinerary.getDepartureStation());
+                    Station arr = stationMap.get(itinerary.getArrivalStation());
+                    dto.setDepartureStation(dep != null ? stationMapper.toDTO(dep) : null);
+                    dto.setArrivalStation(arr != null ? stationMapper.toDTO(arr) : null);
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
+
+    public ItineraryResponseDTO getItineraryById(UUID id) {
+        Itinerary itinerary = itineraryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Itinerary not found"));
+        ItineraryResponseDTO dto = itineraryMapper.toDTO(itinerary);
+        // Charger les stations individuellement (ou utiliser un cache)
+        Station dep = stationRepository.findById(itinerary.getDepartureStation()).orElse(null);
+        Station arr = stationRepository.findById(itinerary.getArrivalStation()).orElse(null);
+        dto.setDepartureStation(dep != null ? stationMapper.toDTO(dep) : null);
+        dto.setArrivalStation(arr != null ? stationMapper.toDTO(arr) : null);
+        return dto;
     }
 
     public void updateItinerary(UUID id, CreateItineraryRequestDTO request) {
@@ -64,14 +131,5 @@ public class ItineraryService {
         Itinerary itinerary = itineraryRepository.findById(id).orElseThrow(() -> new RuntimeException("Itinerary not found"));
 
         itineraryRepository.delete(itinerary);
-    }
-
-    public List<ItineraryResponseDTO> getAllItineraries() {
-        List<Itinerary> itinerary = itineraryRepository.findAll();
-
-        if (itinerary.isEmpty()) {
-            return Collections.emptyList();
-        }
-        return itinerary.stream().map(itineraryMapper::toDTO).toList();
     }
 }
