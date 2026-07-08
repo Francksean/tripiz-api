@@ -65,13 +65,11 @@ public class ItineraryService {
         Map<UUID, Station> arrivalMap = stationRepository.findAllById(arrivalIds).stream()
                 .collect(Collectors.toMap(Station::getStationId, Function.identity()));
 
-        // Construire les DTO
+        // Construire les DTO enrichis
         return itineraries.stream()
                 .map(itinerary -> {
                     ItineraryResponseDTO dto = itineraryMapper.toDTO(itinerary);
-                    // On place la station de départ (connue)
                     dto.setDepartureStation(departureDTO);
-                    // On place la station d'arrivée correspondante
                     Station arrival = arrivalMap.get(itinerary.getArrivalStation());
                     dto.setArrivalStation(arrival != null ? stationMapper.toDTO(arrival) : null);
                     return dto;

@@ -32,8 +32,8 @@ public class ItineraryResource {
     }
 
     @GetMapping("/getStation/{id}")
-    public ResponseEntity<List<Itinerary>> getItinerariesByDepartureStation(@PathVariable UUID id) {
-        List<Itinerary> response = itineraryService.getItinerariesByDepartureStation(id);
+    public ResponseEntity<List<ItineraryResponseDTO>> getItinerariesByDepartureStation(@PathVariable UUID id) {
+        List<ItineraryResponseDTO> response = itineraryService.getItinerariesByDepartureStation(id);
         return ResponseEntity.ok(response);
     }
 
