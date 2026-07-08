@@ -113,11 +113,11 @@ public class AuthService {
 
         try {
             ResponseEntity<Map> response = restTemplate.postForEntity(keycloakUrl, entity, Map.class);
-            User user = userRepository.findByEmail(request.getUsername())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-
-            user.setStatus("ONLINE");
-            userRepository.save(user);
+//            User user = userRepository.findByEmail(request.getUsername())
+//                    .orElseThrow(() -> new RuntimeException("User not found"));
+//
+//            user.setStatus("ONLINE");
+//            userRepository.save(user);
 
 
             Map<String, Object> responseBody = response.getBody();
