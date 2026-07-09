@@ -51,7 +51,7 @@ public class ItineraryResource {
 
     @GetMapping("/admin/getAll")
     public ResponseEntity<List<ItineraryResponseDTO>> getAllItineraries() {
-        List<ItineraryResponseDTO> station = itineraryService.getAllItineraries();
+        List<ItineraryResponseDTO> station = itineraryService.getAllItinerariesForAdmin();
         return ResponseEntity.ok(station);
     }
 

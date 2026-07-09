@@ -127,4 +127,13 @@ public class ItineraryService {
 
         itineraryRepository.delete(itinerary);
     }
+
+    public List<ItineraryResponseDTO> getAllItinerariesForAdmin() {
+        List<Itinerary> itinerary = itineraryRepository.findAll();
+
+        if (itinerary.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return itinerary.stream().map(itineraryMapper::toDTO).toList();
+    }
 }
