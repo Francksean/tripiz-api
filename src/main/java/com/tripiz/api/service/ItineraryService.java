@@ -4,6 +4,7 @@ import com.tripiz.api.domain.Direction;
 import com.tripiz.api.domain.Itinerary;
 import com.tripiz.api.domain.Station;
 import com.tripiz.api.model.CreateItineraryRequestDTO;
+import com.tripiz.api.model.ItineraryAdminDTO;
 import com.tripiz.api.model.ItineraryResponseDTO;
 import com.tripiz.api.model.StationDTO;
 import com.tripiz.api.repository.ItineraryRepository;
@@ -126,5 +127,13 @@ public class ItineraryService {
         Itinerary itinerary = itineraryRepository.findById(id).orElseThrow(() -> new RuntimeException("Itinerary not found"));
 
         itineraryRepository.delete(itinerary);
+    }
+
+    public List<ItineraryAdminDTO> getAllItinerariesForAdmin() {
+        List<Itinerary> itineraries = itineraryRepository.findAll();
+        if (itineraries.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return itineraryMapper.toAdminDTOList(itineraries);
     }
 }
