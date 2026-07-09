@@ -13,6 +13,7 @@ import java.util.UUID;
 public class BusPosition {
 
         private UUID busId;
+        private UUID driverId;
         private double latitude;
         private double longitude;
         private PositionMessageType type;

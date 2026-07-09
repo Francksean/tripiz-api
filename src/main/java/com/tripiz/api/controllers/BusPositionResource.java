@@ -36,8 +36,8 @@ public class BusPositionResource {
             @Payload BusPosition position,
             SimpMessageHeaderAccessor headerAccessor) {
 
-        UUID busId = resolveBusIdFromDriver(headerAccessor);
-        position.setBusId(busId); // on écrase le busId envoyé par le client, on ne lui fait pas confiance
+        UUID busId = resolveBusIdFromDriver(position);
+        position.setBusId(busId);
 
         headerAccessor.getSessionAttributes().put("busId", busId);
 
@@ -56,10 +56,8 @@ public class BusPositionResource {
         Map<String, Object> sessionAttrs = headerAccessor.getSessionAttributes();
         UUID busId = (sessionAttrs != null) ? (UUID) sessionAttrs.get("busId") : null;
 
-        // Sécurité : si la session n'a pas encore de busId (join manqué ou reconnexion),
-        // on le résout à nouveau plutôt que de faire confiance au payload.
         if (busId == null) {
-            busId = resolveBusIdFromDriver(headerAccessor);
+            busId = resolveBusIdFromDriver(position);
             if (sessionAttrs != null) {
                 sessionAttrs.put("busId", busId);
             }
@@ -72,15 +70,13 @@ public class BusPositionResource {
         return position;
     }
 
-    private UUID resolveBusIdFromDriver(SimpMessageHeaderAccessor headerAccessor) {
-        if (headerAccessor.getUser() == null) {
-            throw new IllegalStateException("Connexion WebSocket non authentifiée : aucun Principal trouvé");
+    private UUID resolveBusIdFromDriver(BusPosition position) {
+        if (position.getDriverId() == null) {
+            throw new IllegalStateException("Aucun driverId fourni dans le payload");
         }
 
-        UUID driverId = UUID.fromString(headerAccessor.getUser().getName());
-
-        Trip trajetEnCours = tripRepository.findByDriverIdAndTripStatus(driverId, TripStatus.EN_COURS)
-                .orElseThrow(() -> new IllegalStateException("Aucun trajet en cours pour ce chauffeur : " + driverId));
+        Trip trajetEnCours = tripRepository.findByDriverIdAndTripStatus(position.getDriverId(), TripStatus.EN_COURS)
+                .orElseThrow(() -> new IllegalStateException("Aucun trajet en cours pour ce chauffeur : " + position.getDriverId()));
 
         return trajetEnCours.getBusId();
     }
