@@ -42,7 +42,7 @@ public class Trip {
     private LocalTime actualDeparture;
 
     @Column(name = "trip_status")
-    @Enumerated(EnumType.STRING)   // ← AJOUT OBLIGATOIRE
+    @Enumerated(EnumType.STRING)
     private TripStatus tripStatus;
 
     @Column(name = "passenger_count")
