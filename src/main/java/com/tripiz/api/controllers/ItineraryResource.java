@@ -6,6 +6,7 @@ import com.tripiz.api.model.*;
 import com.tripiz.api.service.ItineraryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -50,9 +51,9 @@ public class ItineraryResource {
     }
 
     @GetMapping("/admin/getAll")
-    public ResponseEntity<List<ItineraryResponseDTO>> getAllItineraries() {
-        List<ItineraryResponseDTO> station = itineraryService.getAllItinerariesForAdmin();
-        return ResponseEntity.ok(station);
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<List<ItineraryAdminDTO>> getAllItinerariesForAdmin() {
+        return ResponseEntity.ok(itineraryService.getAllItinerariesForAdmin());
     }
 
     @GetMapping("/public/all")
