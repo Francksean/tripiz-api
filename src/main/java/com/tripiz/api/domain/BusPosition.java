@@ -16,6 +16,7 @@ public class BusPosition {
         private double latitude;
         private double longitude;
         private PositionMessageType type;
+        private Double heading;
 
 
 }

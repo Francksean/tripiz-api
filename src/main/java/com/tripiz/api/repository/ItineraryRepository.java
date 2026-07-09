@@ -11,4 +11,6 @@ public interface ItineraryRepository extends JpaRepository<Itinerary, UUID> {
     List<Itinerary> findByDepartureStation(UUID stationId);
 
     boolean existsByItineraryName(String itineraryName);
+
+    List<Itinerary> findByDepartureStationOrArrivalStation(UUID stationId, UUID stationId1);
 }

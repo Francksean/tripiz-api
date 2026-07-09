@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -25,4 +26,5 @@ public interface TripRepository extends JpaRepository<Trip, UUID> {
 
     Optional<Trip> findByDriverIdAndTripStatus(UUID driverId, TripStatus tripStatus);
 
+    List<Trip> findByItineraryIdAndTripDateAndTripStatusIn(UUID itineraryId, LocalDate aujourdhui, List<TripStatus> enCours);
 }

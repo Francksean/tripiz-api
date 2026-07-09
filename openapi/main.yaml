@@ -673,6 +673,7 @@ paths:
         '403':
           description: "Forbidden"
 
+
   /itinerary/admin/createItinerary:
     post:
       tags:
