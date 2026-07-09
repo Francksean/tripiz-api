@@ -15,14 +15,19 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface ItineraryMapper {
 
-    // Mapping pour le DTO public avec objets StationDTO
     @Mapping(target = "departureStation", ignore = true)
     @Mapping(target = "arrivalStation", ignore = true)
     ItineraryResponseDTO toDTO(Itinerary itinerary);
 
     List<ItineraryResponseDTO> toDTOList(List<Itinerary> itineraries);
 
-    // Nouveau mapping pour le DTO admin avec IDs
+    @Mapping(source = "itineraryId", target = "itinerary_id")
+    @Mapping(source = "routeName", target = "route_name")
+    @Mapping(source = "itineraryName", target = "itinerary_name")
+    @Mapping(source = "estimatedDuration", target = "estimated_duration")
+    @Mapping(source = "departureStation", target = "departure_station")
+    @Mapping(source = "arrivalStation", target = "arrival_station")
+    @Mapping(source = "distance", target = "distance")
     ItineraryAdminDTO toAdminDTO(Itinerary itinerary);
 
     List<ItineraryAdminDTO> toAdminDTOList(List<Itinerary> itineraries);

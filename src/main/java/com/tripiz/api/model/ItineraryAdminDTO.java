@@ -10,7 +10,7 @@ public class ItineraryAdminDTO {
     private String direction;
     private String itinerary_name;
     private int estimated_duration;
-    private UUID departure_station;   // ID de la station de départ
-    private UUID arrival_station;     // ID de la station d'arrivée
+    private UUID departure_station;
+    private UUID arrival_station;
     private double distance;
 }
