@@ -74,9 +74,12 @@ public class TripService {
             trip.setTripDate(request.getTripDate());
         }
         if (request.getScheduleDeparture() != null) {
-            trip.setActualDeparture(LocalTime.parse(request.getActualDeparture()));
+            trip.setScheduleDeparture(LocalTime.parse(request.getScheduleDeparture()));
         }
         if (request.getTripStatus() != null) {
+           trip.setTripStatus(TripStatus.valueOf(request.getTripStatus().name()));
+        }
+        if (request.getActualDeparture() != null) {
             trip.setActualDeparture(LocalTime.parse(request.getActualDeparture()));
         }
         if (request.getPassengerCount() != null) {
@@ -96,8 +99,9 @@ public class TripService {
         return tripRepository.countAllPassengers();
     }
 
-    public List<Trip> getAllTrips() {
-        return tripRepository.findAll();
+    public List<TripDTO> getAllTrips() {
+        List<Trip> trips = tripRepository.findAll();
+        return tripMapper.toDTOList(trips);
     }
 
     public int countAllTrips() {

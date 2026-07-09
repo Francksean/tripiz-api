@@ -46,8 +46,7 @@ public class AuthService {
                 request.getEmail(),
                 request.getPassword(),
                 request.getFirstName(),
-                request.getLastName()
-        );
+                request.getLastName());
 
         // Créer l'utilisateur local avec l'ID Keycloak
         User user = User.builder()
@@ -76,8 +75,7 @@ public class AuthService {
                 request.getEmail(),
                 request.getPassword(),
                 request.getFirstName(),
-                request.getLastName()
-        );
+                request.getLastName());
 
         User user = User.builder()
                 .keycloakId(keycloakId)
@@ -115,10 +113,9 @@ public class AuthService {
             ResponseEntity<Map> response = restTemplate.postForEntity(keycloakUrl, entity, Map.class);
 //            User user = userRepository.findByEmail(request.getUsername())
 //                    .orElseThrow(() -> new RuntimeException("User not found"));
-//
+
 //            user.setStatus("ONLINE");
 //            userRepository.save(user);
-
 
             Map<String, Object> responseBody = response.getBody();
 
