@@ -6,6 +6,7 @@ import com.tripiz.api.authentication.dto.RegisterResponse;
 import com.tripiz.api.authentication.dto.TokenResponse;
 import com.tripiz.api.domain.User;
 import com.tripiz.api.repository.UserRepository;
+import com.tripiz.api.wallet.service.WalletService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -30,25 +31,23 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final KeycloakUserService keycloakUserService;
+    private final WalletService walletService; // 👈 Injecté
 
     @Value("${keycloak.admin-client-secret}")
     private String clientSecret;
 
     @Transactional
     public RegisterResponse registerClient(RegisterRequest request) {
-        // Vérifier si l'email existe déjà en local
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email already exists");
         }
 
-        // Créer l'utilisateur dans Keycloak
         String keycloakId = keycloakUserService.createUser(
                 request.getEmail(),
                 request.getPassword(),
                 request.getFirstName(),
                 request.getLastName());
 
-        // Créer l'utilisateur local avec l'ID Keycloak
         User user = User.builder()
                 .keycloakId(keycloakId)
                 .email(request.getEmail())
@@ -61,12 +60,13 @@ public class AuthService {
                 .build();
 
         User saved = userRepository.save(user);
+        walletService.createWalletForUser(saved.getUserId());
+
         return new RegisterResponse(saved.getUserId(), saved.getEmail(), saved.getRole());
     }
 
     @Transactional
     public RegisterResponse registerDriver(RegisterRequest request) {
-        // Similaire, mais avec le rôle "driver"
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email already exists");
         }
@@ -89,6 +89,8 @@ public class AuthService {
                 .build();
 
         User saved = userRepository.save(user);
+        walletService.createWalletForUser(saved.getUserId());
+
         return new RegisterResponse(saved.getUserId(), saved.getEmail(), saved.getRole());
     }
 
@@ -105,18 +107,11 @@ public class AuthService {
 
         HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(body, headers);
 
-        // Appel à Keycloak
         RestTemplate restTemplate = new RestTemplate();
         String keycloakUrl = "https://keycloak-production-53a7.up.railway.app/realms/tripiz/protocol/openid-connect/token";
 
         try {
             ResponseEntity<Map> response = restTemplate.postForEntity(keycloakUrl, entity, Map.class);
-//            User user = userRepository.findByEmail(request.getUsername())
-//                    .orElseThrow(() -> new RuntimeException("User not found"));
-
-//            user.setStatus("ONLINE");
-//            userRepository.save(user);
-
             Map<String, Object> responseBody = response.getBody();
 
             TokenResponse tokenResponse = new TokenResponse();

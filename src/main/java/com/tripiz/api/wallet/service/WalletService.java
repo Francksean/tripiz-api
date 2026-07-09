@@ -34,7 +34,7 @@ public class WalletService {
 
     public Wallet getUserWallet(UUID userId) {
         return walletRepository.findByUserId(userId)
-                .orElseThrow(() -> new EntityNotFoundException("Wallet not found for user: " + userId));
+                .orElseGet(() -> createWalletForUser(userId));
     }
 
     public double getWalletBalance(UUID walletId) {
