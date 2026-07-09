@@ -857,6 +857,51 @@ paths:
         '403':
           description: "Forbidden"
 
+  /trip/driver/today:
+    get:
+      tags:
+        - Trip
+      summary: "Get today's trips for the authenticated driver"
+      operationId: getTodayTrips
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: Today's trips
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TripDTO'
+        '401':
+          description: Unauthorized
+
+  /trip/driver/{tripId}/status:
+    patch:
+      tags:
+        - Trip
+      summary: Update trip status
+      operationId: updateTripStatus
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: tripId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTripStatusRequestDTO'
+      responses:
+        '200':
+          description: Trip updated
+
   /trip/admin/getTripsByDriver:
     post:
       tags:
@@ -1418,3 +1463,11 @@ components:
           type: integer
         cancelled:
           type: integer
+
+    UpdateTripStatusRequestDTO:
+      type: object
+      required:
+        - tripStatus
+      properties:
+        tripStatus:
+          $ref: '#/components/schemas/TripStatus'

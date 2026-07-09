@@ -2,16 +2,20 @@ package com.tripiz.api.service;
 
 import com.tripiz.api.domain.Trip;
 import com.tripiz.api.domain.TripStatus;
+import com.tripiz.api.domain.User;
 import com.tripiz.api.model.CreateTripRequestDTO;
 import com.tripiz.api.model.TripDTO;
 import com.tripiz.api.model.TripStatisticsDTO;
+import com.tripiz.api.model.UpdateTripStatusRequestDTO;
 import com.tripiz.api.repository.TripRepository;
 import com.tripiz.api.repository.UserRepository;
 import com.tripiz.api.service.mapper.TripMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 
@@ -114,5 +118,31 @@ public class TripService {
                 .ongoing(tripRepository.countByTripStatus(TripStatus.EN_COURS))
                 .completed(tripRepository.countByTripStatus(TripStatus.TERMINE))
                 .cancelled(tripRepository.countByTripStatus(TripStatus.ANNULE));
+    }
+
+    public List<TripDTO> getTodayTrips(Authentication authentication) {
+
+        String email = authentication.getName();
+
+        User driver = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Driver not found"));
+
+        List<Trip> trips = tripRepository.findByDriverIdAndTripDate(
+                driver.getUserId(),
+                LocalDate.now()
+        );
+
+        return tripMapper.toDTOList(trips);
+    }
+
+    public void updateTripStatus(UUID tripId,
+                                 UpdateTripStatusRequestDTO request) {
+
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new RuntimeException("Trip not found"));
+
+        trip.setTripStatus(TripStatus.valueOf(request.getTripStatus().name()));
+
+        tripRepository.save(trip);
     }
 }
