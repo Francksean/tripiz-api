@@ -1,5 +1,6 @@
 package com.tripiz.api.service;
 
+import com.tripiz.api.domain.Itinerary;
 import com.tripiz.api.domain.Trip;
 import com.tripiz.api.domain.TripStatus;
 import com.tripiz.api.domain.User;
@@ -7,8 +8,10 @@ import com.tripiz.api.model.CreateTripRequestDTO;
 import com.tripiz.api.model.TripDTO;
 import com.tripiz.api.model.TripStatisticsDTO;
 import com.tripiz.api.model.UpdateTripStatusRequestDTO;
+import com.tripiz.api.repository.ItineraryRepository;
 import com.tripiz.api.repository.TripRepository;
 import com.tripiz.api.repository.UserRepository;
+import com.tripiz.api.service.mapper.ItineraryMapper;
 import com.tripiz.api.service.mapper.TripMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +30,8 @@ public class TripService {
     private final TripMapper tripMapper;
     private final UserRepository userRepository;
     private final TripRepository tripRepository;
+    private final ItineraryRepository itineraryRepository;
+    private final ItineraryMapper itineraryMapper;
 
     @Transactional
     public void createTrip(CreateTripRequestDTO request) {
@@ -132,7 +138,29 @@ public class TripService {
                 LocalDate.now()
         );
 
-        return tripMapper.toDTOList(trips);
+        Set<UUID> itineraryIds = trips.stream()
+                .map(Trip::getItineraryId)
+                .collect(Collectors.toSet());
+
+        Map<UUID, Itinerary> itinerairesParId = itineraryRepository.findAllById(itineraryIds)
+                .stream()
+                .collect(Collectors.toMap(Itinerary::getItineraryId, i -> i));
+
+        return trips.stream()
+                .map(trip -> {
+                    TripDTO dto = tripMapper.toDTO(trip);
+
+                    Itinerary itinerary = itinerairesParId.get(trip.getItineraryId());
+
+                    if (itinerary != null) {
+                        dto.setItinerary(
+                                itineraryMapper.toAdminDTO(itinerary)
+                        );
+                    }
+
+                    return dto;
+                })
+                .toList();
     }
 
     public void updateTripStatus(UUID tripId,

@@ -1379,6 +1379,8 @@ components:
           type: number
           format: double
 
+
+
     # ----- Trip -----
     TripStatus:
       type: string
@@ -1438,6 +1440,9 @@ components:
         itinerary_id:
           type: string
           format: uuid
+        itinerary:
+          type: object
+          x-java-type: com.tripiz.api.model.ItineraryAdminDTO
         trip_date:
           type: string
           format: date

@@ -78,7 +78,7 @@ public class StationBusFeedService {
                 position.getLatitude(), position.getLongitude()
         );
 
-        double vitesseMs = (vitesseMoyenneKmh * 1000) / 3600; // conversion km/h -> m/s
+        double vitesseMs = (vitesseMoyenneKmh * 1000) / 3600;
         int etaSeconds = (int) Math.round(distanceMetres / vitesseMs);
 
         return new StationBusDTO(
