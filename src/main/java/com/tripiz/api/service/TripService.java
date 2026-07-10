@@ -122,9 +122,9 @@ public class TripService {
 
     public List<TripDTO> getTodayTrips(Authentication authentication) {
 
-        String email = authentication.getName();
+        String keycloakId = authentication.getName();
 
-        User driver = userRepository.findByEmail(email)
+        User driver = userRepository.findByKeycloakId(keycloakId)
                 .orElseThrow(() -> new RuntimeException("Driver not found"));
 
         List<Trip> trips = tripRepository.findByDriverIdAndTripDate(
