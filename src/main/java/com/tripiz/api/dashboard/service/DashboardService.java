@@ -1,6 +1,7 @@
 package com.tripiz.api.dashboard.service;
 
 import com.tripiz.api.dashboard.dto.*;
+import com.tripiz.api.domain.TicketStatus;
 import com.tripiz.api.repository.BusRepository;
 import com.tripiz.api.repository.TripRepository;
 import com.tripiz.api.repository.UserRepository;
@@ -60,11 +61,11 @@ public class DashboardService {
         List<PaymentMethodUsageDTO> paymentUsage = getPaymentMethodUsage(start, end);
 
         long ticketsSoldToday = ticketRepository.countByPurchaseDateBetween(todayStart, todayEnd);
-        long ticketsUsedToday = ticketRepository.countByStatusAndUseDateBetween("USED", todayStart, todayEnd);
-        long ticketsExpiredToday = ticketRepository.countByStatusAndUseDateBetween("EXPIRED", todayStart, todayEnd);
+        long ticketsUsedToday = ticketRepository.countByStatusAndUseDateBetween(TicketStatus.USED, todayStart, todayEnd);
+        long ticketsExpiredToday = ticketRepository.countByStatusAndUseDateBetween(TicketStatus.EXPIRED, todayStart, todayEnd);
 
         long totalTickets = ticketRepository.countByPurchaseDateBetween(start, end);
-        long usedTickets = ticketRepository.countByStatusAndUseDateBetween("USED", start, end);
+        long usedTickets = ticketRepository.countByStatusAndUseDateBetween(TicketStatus.USED, start, end);
         double usageRate = totalTickets > 0 ? (double) usedTickets / totalTickets * 100 : 0.0;
 
         List<TripPassengerDTO> salesByLine = getSalesByLine(start, end);
