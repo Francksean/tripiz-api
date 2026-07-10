@@ -43,6 +43,7 @@ public class Ticket {
     private String paymentMethod;
 
     @Column(name = "status", nullable = false)
+    @Enumerated(EnumType.STRING)
     private TicketStatus status;
 
     @Column(name = "qr_code")

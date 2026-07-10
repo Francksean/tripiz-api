@@ -1,6 +1,7 @@
 package com.tripiz.api.ticket.repository;
 
 import com.tripiz.api.domain.Ticket;
+import com.tripiz.api.domain.TicketStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,7 +13,7 @@ import java.util.UUID;
 
 public interface TicketRepository extends JpaRepository<Ticket, UUID> {
 
-    long countByStatusAndUseDateBetween(String status, LocalDateTime start, LocalDateTime end);
+    long countByStatusAndUseDateBetween(TicketStatus status, LocalDateTime start, LocalDateTime end);
 
     long countByPurchaseDateBetween(LocalDateTime start, LocalDateTime end);
 
