@@ -43,7 +43,7 @@ public class Ticket {
     private String paymentMethod;
 
     @Column(name = "status", nullable = false)
-    private String status;
+    private TicketStatus status;
 
     @Column(name = "qr_code")
     private String qrCode;

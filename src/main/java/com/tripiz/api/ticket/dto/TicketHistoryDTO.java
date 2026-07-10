@@ -1,5 +1,7 @@
 package com.tripiz.api.ticket.dto;
 
+import com.tripiz.api.domain.TicketStatus;
+import com.tripiz.api.wallet.enums.TransactionStatus;
 import lombok.Builder;
 import lombok.Data;
 
@@ -21,7 +23,7 @@ public class TicketHistoryDTO {
     private String tripStatus;
     private Double price;
     private String paymentMethod;
-    private String ticketStatus;
+    private TicketStatus ticketStatus;
     private LocalDateTime purchaseDate;
     private LocalDateTime useDate;
     private LocalDateTime expirationDate;

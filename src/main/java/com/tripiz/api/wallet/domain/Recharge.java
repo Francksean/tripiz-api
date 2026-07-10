@@ -1,20 +1,25 @@
 package com.tripiz.api.wallet.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-@EqualsAndHashCode(callSuper = true)
-@Data
 @Entity
-@AllArgsConstructor
-@NoArgsConstructor
 @DiscriminatorValue("RECHARGE")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Recharge extends Transaction {
-    private String paymentGatewayReference;
+
+    @Column(name = "recharger_number")
     private String rechargerNumber;
+
+    @Column(name = "channel")
     private String channel;
 
+    @Column(name = "payment_gateway_reference")
+    private String paymentGatewayReference;
 }
