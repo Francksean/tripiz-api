@@ -13,20 +13,20 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/trip/admin")
+@RequestMapping("/trip")
 @RequiredArgsConstructor
 public class TripResource {
 
     private final TripService tripService;
 
-    @PostMapping("/createTrip")
+    @PostMapping("/admin/createTrip")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Void> createTrip(@RequestBody CreateTripRequestDTO request) {
         tripService.createTrip(request);
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/getTripsByDriver")
+    @PostMapping("/admin/getTripsByDriver")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<List<TripDTO>> getTripsByDriver() {
         List<TripDTO> trips = tripService.getTripsByRandomDriver();
@@ -55,41 +55,41 @@ public class TripResource {
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping("/patch/{id}")
+    @PatchMapping("/admin/patch/{id}")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Void> updateTrip(@PathVariable UUID id, @RequestBody CreateTripRequestDTO request) {
         tripService.updateTrip(id, request);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/admin/delete/{id}")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Void> deleteTrip(@PathVariable UUID id) {
         tripService.deleteTrip(id);
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/countAllPassengers")
+    @GetMapping("/admin/countAllPassengers")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Integer> countAllPassengers() {
         int count = tripService.countAllPassengers();
         return ResponseEntity.ok(count);
     }
 
-    @GetMapping("/countAllTrips")
+    @GetMapping("/admin/countAllTrips")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Integer> countAllTrips() {
         int count = tripService.countAllTrips();
         return ResponseEntity.ok(count);
     }
 
-    @GetMapping("/getAll")
+    @GetMapping("/admin/getAll")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<List<TripDTO>> getAllTrips() {
         return ResponseEntity.ok(tripService.getAllTrips());
     }
 
-    @GetMapping("/getStatistics")
+    @GetMapping("/admin/getStatistics")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<TripStatisticsDTO> getStatistics() {
         TripStatisticsDTO trip = tripService.getStatistics();
