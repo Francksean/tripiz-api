@@ -13,4 +13,5 @@ public class ItineraryAdminDTO {
     private UUID departure_station;
     private UUID arrival_station;
     private double distance;
+    private Double ticket_price;
 }
