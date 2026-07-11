@@ -43,9 +43,10 @@ public class ItineraryService {
                 .departureStation(request.getDepartureStation())
                 .distance(request.getDistance())
                 .estimatedDuration(request.getEstimatedDuration())
+                .ticketPrice(request.getTicketPrice()) // ✅ AJOUTÉ
                 .build();
 
-       itineraryRepository.save(itinerary);
+        itineraryRepository.save(itinerary);
     }
 
     public List<ItineraryResponseDTO> getItinerariesByDepartureStation(UUID stationId) {

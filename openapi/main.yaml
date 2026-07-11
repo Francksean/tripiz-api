@@ -1372,6 +1372,9 @@ components:
           type: string
         estimated_duration:
           type: integer
+        ticketPrice:
+          type: number
+          format: double
         departure_station:
           type: string
           format: uuid
@@ -1388,6 +1391,9 @@ components:
         itinerary_id:
           type: string
           format: uuid
+        ticketPrice:
+          type: number
+          format: double
         route_name:
           type: string
         direction:

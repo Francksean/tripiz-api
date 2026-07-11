@@ -1,6 +1,5 @@
 package com.tripiz.api.domain;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,27 +18,31 @@ public class Itinerary {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "itineray_id")
-    public UUID itineraryId;
+    @Column(name = "itinerary_id")
+    private UUID itineraryId;
 
     @Column(name = "route_name")
-    public String routeName;
+    private String routeName;
 
     @Column(name = "direction")
-    public Direction direction;
+    @Enumerated(EnumType.STRING)
+    private Direction direction;
 
-    @Column(name = "itineray_name")
-    public String itineraryName;
+    @Column(name = "itinerary_name")
+    private String itineraryName;
 
     @Column(name = "estimated_duration")
-    public int estimatedDuration;
+    private int estimatedDuration;
 
     @Column(name = "departure_station")
-    public UUID departureStation;
+    private UUID departureStation;
 
     @Column(name = "arrival_station")
-    public UUID arrivalStation;
+    private UUID arrivalStation;
 
     @Column(name = "distance")
-    public double distance;
+    private double distance;
+
+    @Column(name = "ticket_price")
+    private Double ticketPrice;
 }
