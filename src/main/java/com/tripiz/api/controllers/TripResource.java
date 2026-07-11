@@ -96,7 +96,7 @@ public class TripResource {
         return ResponseEntity.ok(trip);
     }
 
-    @GetMapping("/trip/{tripId}/details")
+    @GetMapping("/{tripId}/details")
     public ResponseEntity<TripDetailsDTO> getTripDetails(
             @PathVariable UUID tripId) {
 
