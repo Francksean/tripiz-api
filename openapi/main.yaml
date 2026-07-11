@@ -997,6 +997,31 @@ paths:
         '404':
           description: "Not found"
 
+  /trip/{tripId}/details:
+    get:
+      tags:
+        - Trip
+      summary: Get trip details with itinerary and stations
+      operationId: getTripDetails
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: tripId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Trip details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TripDetailsDTO'
+        '404':
+          description: Trip not found
+
   /trip/admin/countAllPassengers:
     get:
       tags:
@@ -1380,6 +1405,27 @@ components:
           format: double
 
 
+    ItineraryWithStationsDTO:
+      type: object
+      properties:
+        itinerary_id:
+          type: string
+          format: uuid
+        route_name:
+          type: string
+        direction:
+          type: string
+        itinerary_name:
+          type: string
+        estimated_duration:
+          type: integer
+        distance:
+          type: number
+          format: double
+        departure_station:
+          $ref: '#/components/schemas/StationDTO'
+        arrival_station:
+          $ref: '#/components/schemas/StationDTO'
 
     # ----- Trip -----
     TripStatus:
@@ -1476,3 +1522,11 @@ components:
       properties:
         tripStatus:
           $ref: '#/components/schemas/TripStatus'
+
+    TripDetailsDTO:
+      type: object
+      properties:
+        trip:
+          $ref: '#/components/schemas/TripDTO'
+        itinerary:
+          $ref: '#/components/schemas/ItineraryWithStationsDTO'

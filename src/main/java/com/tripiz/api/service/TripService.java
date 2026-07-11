@@ -1,17 +1,14 @@
 package com.tripiz.api.service;
 
-import com.tripiz.api.domain.Itinerary;
-import com.tripiz.api.domain.Trip;
+import com.tripiz.api.domain.*;
 import com.tripiz.api.domain.TripStatus;
-import com.tripiz.api.domain.User;
-import com.tripiz.api.model.CreateTripRequestDTO;
-import com.tripiz.api.model.TripDTO;
-import com.tripiz.api.model.TripStatisticsDTO;
-import com.tripiz.api.model.UpdateTripStatusRequestDTO;
+import com.tripiz.api.model.*;
 import com.tripiz.api.repository.ItineraryRepository;
+import com.tripiz.api.repository.StationRepository;
 import com.tripiz.api.repository.TripRepository;
 import com.tripiz.api.repository.UserRepository;
 import com.tripiz.api.service.mapper.ItineraryMapper;
+import com.tripiz.api.service.mapper.StationMapper;
 import com.tripiz.api.service.mapper.TripMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +29,8 @@ public class TripService {
     private final TripRepository tripRepository;
     private final ItineraryRepository itineraryRepository;
     private final ItineraryMapper itineraryMapper;
+    private final StationRepository stationRepository;
+    private final StationMapper stationMapper;
 
     @Transactional
     public void createTrip(CreateTripRequestDTO request) {
@@ -172,5 +171,48 @@ public class TripService {
         trip.setTripStatus(TripStatus.valueOf(request.getTripStatus().name()));
 
         tripRepository.save(trip);
+    }
+
+    public TripDetailsDTO getTripDetails(UUID tripId) {
+
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new RuntimeException("Trip not found"));
+
+        Itinerary itinerary = itineraryRepository.findById(trip.getItineraryId())
+                .orElseThrow(() -> new RuntimeException("Itinerary not found"));
+
+        Station departureStation = stationRepository
+                .findById(itinerary.getDepartureStation())
+                .orElseThrow(() -> new RuntimeException("Departure station not found"));
+
+        Station arrivalStation = stationRepository
+                .findById(itinerary.getArrivalStation())
+                .orElseThrow(() -> new RuntimeException("Arrival station not found"));
+
+        TripDTO tripDTO = tripMapper.toDTO(trip);
+
+        ItineraryWithStationsDTO itineraryDTO =
+                new ItineraryWithStationsDTO();
+
+        itineraryDTO.setItineraryId(itinerary.getItineraryId());
+        itineraryDTO.setRouteName(itinerary.getRouteName());
+        itineraryDTO.setDirection(itinerary.getDirection().name());
+        itineraryDTO.setItineraryName(itinerary.getItineraryName());
+        itineraryDTO.setEstimatedDuration(itinerary.getEstimatedDuration());
+        itineraryDTO.setDistance(itinerary.getDistance());
+
+        itineraryDTO.setDepartureStation(
+                stationMapper.toDTO(departureStation)
+        );
+
+        itineraryDTO.setArrivalStation(
+                stationMapper.toDTO(arrivalStation)
+        );
+
+        TripDetailsDTO response = new TripDetailsDTO();
+        response.setTrip(tripDTO);
+        response.setItinerary(itineraryDTO);
+
+        return response;
     }
 }
