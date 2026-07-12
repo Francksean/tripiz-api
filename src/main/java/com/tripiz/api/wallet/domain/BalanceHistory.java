@@ -14,7 +14,7 @@ import java.util.UUID;
 @Table(name = "balance_history")
 public class BalanceHistory {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @ManyToOne

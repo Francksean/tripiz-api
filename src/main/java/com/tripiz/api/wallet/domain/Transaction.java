@@ -19,7 +19,7 @@ import java.util.UUID;
 @Table(name = "transactions")
 public abstract class Transaction {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(name = "transaction_type", insertable = false, updatable = false)
