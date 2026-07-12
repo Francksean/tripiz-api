@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -86,7 +87,7 @@ public class TripService {
             trip.setScheduleDeparture(LocalTime.parse(request.getScheduleDeparture()));
         }
         if (request.getTripStatus() != null) {
-           trip.setTripStatus(TripStatus.valueOf(request.getTripStatus().name()));
+            trip.setTripStatus(TripStatus.valueOf(request.getTripStatus().name()));
         }
         if (request.getActualDeparture() != null) {
             trip.setActualDeparture(LocalTime.parse(request.getActualDeparture()));
@@ -100,7 +101,6 @@ public class TripService {
 
     public void deleteTrip(UUID id) {
         Trip trip = tripRepository.findById(id).orElseThrow(() -> new RuntimeException("Trip not found"));
-
         tripRepository.delete(trip);
     }
 
@@ -214,5 +214,96 @@ public class TripService {
         response.setItinerary(itineraryDTO);
 
         return response;
+    }
+
+    public List<TripWithItineraryDetailsDTO> getTripsByStation(UUID stationId) {
+        stationRepository.findById(stationId)
+                .orElseThrow(() -> new RuntimeException("Station not found with id: " + stationId));
+
+        List<Trip> trips = tripRepository.findByStationId(stationId);
+
+        if (trips.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        return buildTripsWithItineraryDetails(trips);
+    }
+
+    public List<TripWithItineraryDetailsDTO> getTripsByStationAndStatuses(
+            UUID stationId,
+            List<TripStatus> statuses) {
+
+        stationRepository.findById(stationId)
+                .orElseThrow(() -> new RuntimeException("Station not found with id: " + stationId));
+
+        List<Trip> trips = tripRepository.findByStationIdAndStatuses(stationId, statuses);
+
+        if (trips.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        return buildTripsWithItineraryDetails(trips);
+    }
+
+    private List<TripWithItineraryDetailsDTO> buildTripsWithItineraryDetails(List<Trip> trips) {
+        Set<UUID> itineraryIds = trips.stream()
+                .map(Trip::getItineraryId)
+                .collect(Collectors.toSet());
+
+        Map<UUID, Itinerary> itineraryMap = itineraryRepository.findAllById(itineraryIds)
+                .stream()
+                .collect(Collectors.toMap(Itinerary::getItineraryId, i -> i));
+
+        Set<UUID> stationIds = itineraryMap.values().stream()
+                .flatMap(itinerary -> Stream.of(
+                        itinerary.getDepartureStation(),
+                        itinerary.getArrivalStation()
+                ))
+                .collect(Collectors.toSet());
+
+        Map<UUID, Station> stationMap = stationRepository.findAllById(stationIds)
+                .stream()
+                .collect(Collectors.toMap(Station::getStationId, s -> s));
+
+        return trips.stream()
+                .map(trip -> {
+                    Itinerary itinerary = itineraryMap.get(trip.getItineraryId());
+                    if (itinerary == null) {
+                        return null;
+                    }
+
+                    Station departureStation = stationMap.get(itinerary.getDepartureStation());
+                    Station arrivalStation = stationMap.get(itinerary.getArrivalStation());
+
+                    ItineraryWithStationsDTO itineraryDTO = new ItineraryWithStationsDTO();
+                    itineraryDTO.setItineraryId(itinerary.getItineraryId());
+                    itineraryDTO.setRouteName(itinerary.getRouteName());
+                    itineraryDTO.setDirection(itinerary.getDirection().name());
+                    itineraryDTO.setItineraryName(itinerary.getItineraryName());
+                    itineraryDTO.setEstimatedDuration(itinerary.getEstimatedDuration());
+                    itineraryDTO.setDistance(itinerary.getDistance());
+
+                    if (departureStation != null) {
+                        itineraryDTO.setDepartureStation(stationMapper.toDTO(departureStation));
+                    }
+                    if (arrivalStation != null) {
+                        itineraryDTO.setArrivalStation(stationMapper.toDTO(arrivalStation));
+                    }
+
+                    TripWithItineraryDetailsDTO tripDTO = new TripWithItineraryDetailsDTO();
+                    tripDTO.setTripId(trip.getTripId());
+                    tripDTO.setBusId(trip.getBusId());
+                    tripDTO.setDriverId(trip.getDriverId());
+                    tripDTO.setTripDate(trip.getTripDate());
+                    tripDTO.setScheduleDeparture(trip.getScheduleDeparture());
+                    tripDTO.setActualDeparture(trip.getActualDeparture());
+                    tripDTO.setTripStatus(trip.getTripStatus() != null ? trip.getTripStatus().name() : null);
+                    tripDTO.setPassengerCount(trip.getPassengerCount());
+                    tripDTO.setItinerary(itineraryDTO);
+
+                    return tripDTO;
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 }

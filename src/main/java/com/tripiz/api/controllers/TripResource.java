@@ -1,5 +1,6 @@
 package com.tripiz.api.controllers;
 
+import com.tripiz.api.domain.TripStatus;
 import com.tripiz.api.model.*;
 import com.tripiz.api.service.TripService;
 import lombok.RequiredArgsConstructor;
@@ -89,6 +90,41 @@ public class TripResource {
         return ResponseEntity.ok(tripService.getAllTrips());
     }
 
+    @GetMapping("/getByStation/{stationId}")
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<List<TripWithItineraryDetailsDTO>> getTripsByStation(
+            @PathVariable UUID stationId) {
+
+        List<TripWithItineraryDetailsDTO> trips = tripService.getTripsByStation(stationId);
+
+        if (trips.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        return ResponseEntity.ok(trips);
+    }
+
+    @GetMapping("/station/{stationId}/filter")
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<List<TripWithItineraryDetailsDTO>> getTripsByStationAndStatuses(
+            @PathVariable UUID stationId,
+            @RequestParam(required = false) List<TripStatus> statuses) {
+
+        List<TripWithItineraryDetailsDTO> trips;
+
+        if (statuses != null && !statuses.isEmpty()) {
+            trips = tripService.getTripsByStationAndStatuses(stationId, statuses);
+        } else {
+            trips = tripService.getTripsByStation(stationId);
+        }
+
+        if (trips.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        return ResponseEntity.ok(trips);
+    }
+
     @GetMapping("/admin/getStatistics")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<TripStatisticsDTO> getStatistics() {
@@ -104,5 +140,4 @@ public class TripResource {
                 tripService.getTripDetails(tripId)
         );
     }
-
 }
