@@ -14,8 +14,9 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "ticket")
+@Table(name = "tickets")
 public class Ticket {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "ticket_id")
@@ -27,25 +28,22 @@ public class Ticket {
     @Column(name = "trip_id", nullable = false)
     private UUID tripId;
 
-    @Column(name = "purchase_date", nullable = false)
+    @Column(name = "purchase_date")
     private LocalDateTime purchaseDate;
 
     @Column(name = "use_date")
     private LocalDateTime useDate;
 
-    @Column(name = "expiration_date", nullable = false)
+    @Column(name = "expiration_date")
     private LocalDateTime expirationDate;
 
-    @Column(name = "price", nullable = false)
+    @Column(name = "price")
     private Double price;
 
-    @Column(name = "payment_method", nullable = false)
+    @Column(name = "payment_method")
     private String paymentMethod;
 
-    @Column(name = "status", nullable = false)
+    @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private TicketStatus status;
-
-    @Column(name = "qr_code")
-    private String qrCode;
 }

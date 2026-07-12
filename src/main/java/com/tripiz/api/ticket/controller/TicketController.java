@@ -36,7 +36,7 @@ public class TicketController {
         User user = userRepository.findByKeycloakId(keycloakId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Ticket ticket = ticketService.purchaseTicket(user.getUserId(), request.getTripId(), "WALLET");
+        Ticket ticket = ticketService.purchaseTicket(user.getUserId(), request.getTripId());
         return ResponseEntity.status(HttpStatus.CREATED).body(ticket);
     }
 }
