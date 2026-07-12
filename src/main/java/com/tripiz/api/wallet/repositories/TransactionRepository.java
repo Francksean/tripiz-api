@@ -12,7 +12,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface TransactionRepository extends JpaRepository<Transaction, Long> {
+public interface TransactionRepository extends JpaRepository<Transaction, UUID> {
 
     List<Transaction> findByWalletIdOrderByTimestampDesc(UUID wallet_id);
     Optional<Transaction> findByReference(String reference);
