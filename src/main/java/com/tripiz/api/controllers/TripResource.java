@@ -91,7 +91,6 @@ public class TripResource {
     }
 
     @GetMapping("/getByStation/{stationId}")
-    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<List<TripWithItineraryDetailsDTO>> getTripsByStation(
             @PathVariable UUID stationId) {
 
