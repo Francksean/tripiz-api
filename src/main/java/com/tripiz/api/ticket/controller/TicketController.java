@@ -31,7 +31,6 @@ public class TicketController {
     }
 
     @PostMapping("/purchase")
-    @PreAuthorize("hasRole('client')")
     public ResponseEntity<Ticket> purchaseTicket(@RequestBody PurchaseRequestDTO request, @AuthenticationPrincipal Jwt jwt) {
         String keycloakId = jwt.getSubject();
         User user = userRepository.findByKeycloakId(keycloakId)
