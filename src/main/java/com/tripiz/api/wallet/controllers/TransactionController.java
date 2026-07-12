@@ -56,6 +56,33 @@ public class TransactionController {
         }
     }
 
+    @GetMapping("/campay/callback")
+    public ResponseEntity<?> handleCampayCallback(
+            @RequestParam String status,
+            @RequestParam String reference,
+            @RequestParam(name = "external_reference")
+            String externalReference
+    ) {
+        try {
+            transactionService.handleCampayCallback(
+                    status,
+                    reference,
+                    externalReference
+            );
+
+            return ResponseEntity.ok(
+                    Map.of("message", "Callback CamPay traité avec succès")
+            );
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of(
+                            "error", "Erreur lors du traitement du callback",
+                            "message", e.getMessage()
+                    ));
+        }
+    }
+
     @PostMapping("/{transactionId}/complete")
     public ResponseEntity<?> completeTransaction(
             @PathVariable Long transactionId,

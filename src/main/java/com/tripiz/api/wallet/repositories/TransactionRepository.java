@@ -8,12 +8,14 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
     List<Transaction> findByWalletIdOrderByTimestampDesc(UUID wallet_id);
+    Optional<Transaction> findByReference(String reference);
 
     // Nouvelle méthode pour compter par type et période
     @Query("SELECT COUNT(t) FROM Transaction t WHERE t.transactionType = :type AND t.timestamp BETWEEN :start AND :end")

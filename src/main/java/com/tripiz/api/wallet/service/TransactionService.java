@@ -10,8 +10,6 @@ import com.tripiz.api.wallet.exceptions.PaymentProcessingException;
 import com.tripiz.api.wallet.repositories.BalanceHistoryRepository;
 import com.tripiz.api.wallet.repositories.TransactionRepository;
 import com.tripiz.api.wallet.repositories.WalletRepository;
-import com.tripiz.api.wallet.types.NotchPayTransaction;
-import com.tripiz.api.wallet.types.NotchPaymentResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -30,20 +28,27 @@ import java.util.UUID;
 public class TransactionService {
 
     @Autowired
-    WalletRepository walletRepository;
-    @Autowired
-    TransactionRepository transactionRepository;
-    @Autowired
-    BalanceHistoryRepository balanceHistoryRepository;
-    @Autowired
-    Gson gson;
+    private WalletRepository walletRepository;
 
-    @Value("${notchpay.key.public}")
-    private String notchpayPublicKey;
+    @Autowired
+    private TransactionRepository transactionRepository;
+
+    @Autowired
+    private BalanceHistoryRepository balanceHistoryRepository;
+
+    @Autowired
+    private Gson gson;
+
+    @Value("${campay.auth-token}")
+    private String campayAuthToken;
+
+    @Value("${campay.base-url:https://demo.campay.net/api}")
+    private String campayBaseUrl;
 
     @Transactional
     public Recharge initiateRecharge(RechargeRequestDTO request) {
-        Wallet wallet = walletRepository.findById(request.getWalletId()).orElseThrow();
+        Wallet wallet = walletRepository.findById(request.getWalletId())
+                .orElseThrow(() -> new IllegalArgumentException("Wallet non trouvé"));
 
         Recharge recharge = new Recharge();
         recharge.setAmount(request.getAmount());
@@ -54,104 +59,137 @@ public class TransactionService {
         recharge.setRechargerNumber(request.getPhone());
         recharge.setChannel(request.getChannel());
 
-        // Sauvegarder d'abord la transaction
         recharge = transactionRepository.save(recharge);
 
-        System.out.println("000000000000000000000");
-
         try {
-            processNotchPayRecharge(recharge);
+            processCampayRecharge(recharge);
             return recharge;
         } catch (Exception e) {
             recharge.setStatus(TransactionStatus.FAILED);
             transactionRepository.save(recharge);
-            System.out.println(e.getMessage());
-            throw new PaymentProcessingException("Échec du traitement de la recharge", e);
+
+            throw new PaymentProcessingException(
+                    "Échec du traitement de la recharge",
+                    e
+            );
         }
     }
 
-    private void processNotchPayRecharge(Recharge recharge) throws Exception {
+    private void processCampayRecharge(Recharge recharge) throws Exception {
         Map<String, Object> payload = new HashMap<>();
-        payload.put("reference", recharge.getReference());
-        payload.put("amount", recharge.getAmount());
-        payload.put("phone", recharge.getRechargerNumber());
+        payload.put("amount", String.valueOf((int) recharge.getAmount()));
         payload.put("currency", "XAF");
-        payload.put("description", "Recharge de portefeuille");
+        payload.put("from", formatPhoneNumber(recharge.getRechargerNumber()));
+        payload.put("description", "Recharge de portefeuille Tripiz");
+        payload.put("external_reference", recharge.getReference());
+        payload.put("external_user", String.valueOf(recharge.getWallet().getId()));
 
-        HttpResponse<String> createResponse = createNotchPayment(payload);
+        HttpResponse<String> response = requestCampayPayment(payload);
 
-        if (createResponse.statusCode() != 201) {
-            throw new PaymentProcessingException("Échec de la création du paiement: " + createResponse.body());
+        if (response.statusCode() != 200) {
+            throw new PaymentProcessingException(
+                    "Échec de la demande de paiement CamPay : " + response.body()
+            );
         }
 
-        NotchPaymentResponse responseData = gson.fromJson(createResponse.body(), NotchPaymentResponse.class);
-        NotchPayTransaction transaction = responseData.getTransaction();
-        String paymentReference = transaction.getReference();
+        Map<String, Object> responseData =
+                gson.fromJson(response.body(), Map.class);
 
-        System.out.println("TTTTTTTTTTTTTTTTTTTTTTTTT");
-        // Préparer les données de finalisation
-        Map<String, Object> paymentDetails = new HashMap<>();
-        paymentDetails.put("channel", recharge.getChannel());
+        String campayReference = (String) responseData.get("reference");
 
-        Map<String, String> data = new HashMap<>();
-        data.put("phone", recharge.getRechargerNumber());
-        paymentDetails.put("data", data);
-
-        HttpResponse<String> finalizeResponse = finalizePayment(paymentReference, paymentDetails);
-
-        if (finalizeResponse.statusCode() != 202) {
-            throw new PaymentProcessingException("Échec de la finalisation du paiement: " + finalizeResponse.body());
+        if (campayReference == null || campayReference.isBlank()) {
+            throw new PaymentProcessingException(
+                    "CamPay n'a retourné aucune référence de transaction"
+            );
         }
 
-        NotchPaymentResponse paymentResult = gson.fromJson(finalizeResponse.body(), NotchPaymentResponse.class);
+        recharge.setPaymentGatewayReference(campayReference);
 
-        if (!"Accepted".equals(paymentResult.getStatus())) {
-            throw new PaymentProcessingException("Paiement refusé: " + paymentResult.getMessage());
-        }
-        // Mettre à jour la transaction avec les infos de NotchPay
-        recharge.setPaymentGatewayReference(paymentResult.getTransaction().getId());
-        recharge.setStatus(TransactionStatus.COMPLETE);
+        // Le paiement reste PENDING.
+        // Le wallet sera crédité uniquement après le callback SUCCESSFUL.
         transactionRepository.save(recharge);
-
-        // Mettre à jour le solde du wallet
-        Wallet wallet = recharge.getWallet();
-        double oldBalance = wallet.getBalance();
-        wallet.setBalance(oldBalance + recharge.getAmount());
-        walletRepository.save(wallet);
-
-        // Enregistrer l'historique du solde
-        saveBalanceHistory(wallet, oldBalance, "RECHARGE");
     }
 
-    private HttpResponse<String> createNotchPayment(Map<String, Object> data) throws Exception {
+    private HttpResponse<String> requestCampayPayment(
+            Map<String, Object> data
+    ) throws Exception {
+
         HttpClient client = HttpClient.newHttpClient();
+
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://api.notchpay.co/payments/"))
+                .uri(URI.create(campayBaseUrl + "/collect/"))
                 .header("Content-Type", "application/json")
-                .header("Authorization", notchpayPublicKey)
+                .header("Authorization", "Token " + campayAuthToken)
                 .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(data)))
                 .build();
 
-        return client.send(request, HttpResponse.BodyHandlers.ofString());
+        return client.send(
+                request,
+                HttpResponse.BodyHandlers.ofString()
+        );
     }
 
-    private HttpResponse<String> finalizePayment(String reference, Map<String, Object> data) throws Exception {
-        HttpClient client = HttpClient.newHttpClient();
-        String url = "https://api.notchpay.co/payments/" + reference;
+    private String formatPhoneNumber(String phone) {
+        String formattedPhone = phone.replaceAll("\\s+", "");
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .header("Content-Type", "application/json")
-                .header("Authorization", notchpayPublicKey)
-                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(data)))
-                .build();
+        if (formattedPhone.startsWith("+")) {
+            formattedPhone = formattedPhone.substring(1);
+        }
 
-        return client.send(request, HttpResponse.BodyHandlers.ofString());
+        if (!formattedPhone.startsWith("237")) {
+            formattedPhone = "237" + formattedPhone;
+        }
+
+        return formattedPhone;
+    }
+
+    @Transactional
+    public void handleCampayCallback(
+            String status,
+            String reference,
+            String externalReference
+    ) {
+        Recharge recharge = transactionRepository
+                .findByReference(externalReference)
+                .filter(transaction -> transaction instanceof Recharge)
+                .map(transaction -> (Recharge) transaction)
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "Recharge non trouvée : " + externalReference
+                        )
+                );
+
+        // Empêche un double crédit si CamPay renvoie plusieurs fois le callback.
+        if (recharge.getStatus() != TransactionStatus.PENDING) {
+            return;
+        }
+
+        if ("SUCCESSFUL".equalsIgnoreCase(status)) {
+            Wallet wallet = recharge.getWallet();
+            double oldBalance = wallet.getBalance();
+
+            recharge.setStatus(TransactionStatus.COMPLETE);
+            recharge.setPaymentGatewayReference(reference);
+
+            wallet.setBalance(oldBalance + recharge.getAmount());
+
+            transactionRepository.save(recharge);
+            walletRepository.save(wallet);
+
+            saveBalanceHistory(wallet, oldBalance, "RECHARGE");
+
+        } else if ("FAILED".equalsIgnoreCase(status)) {
+            recharge.setStatus(TransactionStatus.FAILED);
+            recharge.setPaymentGatewayReference(reference);
+
+            transactionRepository.save(recharge);
+        }
     }
 
     @Transactional
     public Spending initiatePayment(PaymentRequestDTO request) {
-        Wallet wallet = walletRepository.findById(request.getWalletId()).orElseThrow();
+        Wallet wallet = walletRepository.findById(request.getWalletId())
+                .orElseThrow();
 
         if (wallet.getBalance() < request.getAmount()) {
             throw new InsufficientFundsException("Solde insuffisant");
@@ -209,7 +247,11 @@ public class TransactionService {
                 wallet.setBalance(oldBalance - transaction.getAmount());
             }
 
-            saveBalanceHistory(wallet, oldBalance, transaction.getClass().getSimpleName());
+            saveBalanceHistory(
+                    wallet,
+                    oldBalance,
+                    transaction.getClass().getSimpleName()
+            );
         } else {
             transaction.setStatus(TransactionStatus.FAILED);
         }
@@ -218,13 +260,18 @@ public class TransactionService {
         walletRepository.save(wallet);
     }
 
-    private void saveBalanceHistory(Wallet wallet, double oldBalance, String reason) {
+    private void saveBalanceHistory(
+            Wallet wallet,
+            double oldBalance,
+            String reason
+    ) {
         BalanceHistory history = new BalanceHistory();
         history.setWallet(wallet);
         history.setOldBalance(oldBalance);
         history.setNewBalance(wallet.getBalance());
         history.setChangeDate(LocalDateTime.now());
         history.setChangeReason(reason);
+
         balanceHistoryRepository.save(history);
     }
 }
