@@ -81,7 +81,7 @@ public class TicketService {
     @Transactional
     public Ticket purchaseTicket(UUID userId, UUID tripId, String paymentMethod) {
         // Récupérer le trajet
-        Trip trip = tripRepository.n(tripId)
+        Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new RuntimeException("Trip not found"));
 
         // Récupérer l'itinéraire
