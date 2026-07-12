@@ -49,7 +49,7 @@ public class WalletController {
     }
 
     @PostMapping("/recharge/confirm/{transactionId}")
-    public ResponseEntity<?> confirmRecharge(@PathVariable Long transactionId, @RequestParam boolean success) {
+    public ResponseEntity<?> confirmRecharge(@PathVariable UUID transactionId, @RequestParam boolean success) {
         try {
             walletService.confirmRecharge(transactionId, success);
             return ResponseEntity.ok().build();

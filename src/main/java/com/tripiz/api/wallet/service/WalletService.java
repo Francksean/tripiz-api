@@ -87,7 +87,7 @@ public class WalletService {
         return recharge;
     }
 
-    public void confirmRecharge(Long transactionId, boolean success) {
+    public void confirmRecharge(UUID transactionId, boolean success) {
         Transaction transaction = transactionRepository.findById(transactionId)
                 .orElseThrow(() -> new EntityNotFoundException("Transaction not found"));
 
