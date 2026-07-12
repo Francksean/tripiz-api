@@ -206,7 +206,7 @@ public class TransactionService {
     }
 
     @Transactional
-    public void completePayment(Long paymentId) {
+    public void completePayment(UUID paymentId) {
         Spending spending = (Spending) transactionRepository.findById(paymentId)
                 .orElseThrow();
 
@@ -227,7 +227,7 @@ public class TransactionService {
     }
 
     @Transactional
-    public void completeTransaction(Long transactionId, boolean success) {
+    public void completeTransaction(UUID transactionId, boolean success) {
         Transaction transaction = transactionRepository.findById(transactionId)
                 .orElseThrow();
 

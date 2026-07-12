@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/transactions")
@@ -85,7 +86,7 @@ public class TransactionController {
 
     @PostMapping("/{transactionId}/complete")
     public ResponseEntity<?> completeTransaction(
-            @PathVariable Long transactionId,
+            @PathVariable UUID transactionId,
             @RequestParam boolean success) {
 
         try {
@@ -113,7 +114,7 @@ public class TransactionController {
     }
 
     @PostMapping("/payment/{paymentId}/complete")
-    public ResponseEntity<?> completePayment(@PathVariable Long paymentId) {
+    public ResponseEntity<?> completePayment(@PathVariable UUID paymentId) {
         try {
             transactionService.completePayment(paymentId);
             return ResponseEntity.ok().body(Map.of("message", "Paiement complété avec succès"));
