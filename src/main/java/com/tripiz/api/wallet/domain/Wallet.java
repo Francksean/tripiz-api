@@ -19,7 +19,7 @@ import java.util.UUID;
 @Table(name = "wallet")
 public class Wallet {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "wallet_id")
     private UUID id;
 
